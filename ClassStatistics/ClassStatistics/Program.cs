@@ -7,7 +7,7 @@ using System.Text;
  * Készíts programot, ami max. 50 ember adatait bekéri
  * az elemszámot, nevet, születési dátumot és matematika évvégi jegyet,
  * majd átlagol, meghatározza van-e bukás, kik buktak, van-e ötös, kik kaptak ötöst!
-*/
+ */
 
 namespace ClassStatistics
 {
@@ -69,12 +69,12 @@ namespace ClassStatistics
              * Ennek lényege egy tipikus adattábla leképzése használható formába:
              * A külső tömb a sorokat tartalmazza, a belső tömb pedig (minden sorkulcs egy értéke)
              * egy újabb tömb, amelyben minden kulcs az oszlopot, minden érték pedig a cellát szimbolizálja.
-            */
+             */
 
             /* ^ Igen ám, csak sajnos C#-ban ez nem megvalósítható.
              * Helyette készítünk lentebb egy saját osztályt, amelyekből fog
              * az egész adatstruktúra felépülni.
-            */
+             */
 
             // Lefoglaljuk az adattáblát a memóriában, felhasználva az új osztályt.
             Student[] diakok = new Student[rekord];
