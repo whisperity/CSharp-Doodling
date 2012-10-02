@@ -1,3 +1,4 @@
-# .cs (CSharp source code) files are text files
-# which should always have CR LF as their line ending.
+# Various CSharp related files set to automatic CR LF ending.
 *.cs text eol=crlf
+*.csproj text eol=crlf
+*.sln text eol=crlf

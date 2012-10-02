@@ -1,9 +1,6 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
+﻿Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C# Express 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassStatistics", "ClassStatistics\ClassStatistics.csproj", "{425EE5BC-A13A-4CB2-AF09-91F84F287AF5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IOExample", "IOExample\IOExample.csproj", "{097AF999-DC1D-40D1-917A-9DBA6421D488}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,10 +12,6 @@ Global
 		{425EE5BC-A13A-4CB2-AF09-91F84F287AF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{425EE5BC-A13A-4CB2-AF09-91F84F287AF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{425EE5BC-A13A-4CB2-AF09-91F84F287AF5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{097AF999-DC1D-40D1-917A-9DBA6421D488}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{097AF999-DC1D-40D1-917A-9DBA6421D488}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{097AF999-DC1D-40D1-917A-9DBA6421D488}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{097AF999-DC1D-40D1-917A-9DBA6421D488}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
