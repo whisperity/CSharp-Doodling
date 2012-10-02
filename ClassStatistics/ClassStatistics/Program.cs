@@ -22,7 +22,7 @@ namespace ClassStatistics
 {
     class Program
     {
-        private static FileStream createStream(string path, FileMode mode, FileAccess access, bool ertesitsen = true)
+        private static FileStream create_FileStream(string path, FileMode mode, FileAccess access, bool ertesitsen = true)
         {
             /* Ez a függvény a megadott fájlhoz létrehoz
              * egy fájl adatfolyam mutatót, és ezzel visszatér.
@@ -35,7 +35,7 @@ namespace ClassStatistics
             FileStream new_handle = null;
 
             // A későbbi hiba megjelenítéséhez egy stringbe tároljuk a hiba szöveget.
-            string hibaszoveg = "";
+            string hiba_szoveg = "";
             try
             {
                 // Megpróbáljuk létrehozni a fájlhoz való kapcsolatot.
@@ -46,18 +46,18 @@ namespace ClassStatistics
             {
                 // Nem található fájl esetén megjelenítjük a megfelelő hibát.
                 
-                hibaszoveg = "A megadott fájl (" + path + ") nem található.";
+                hiba_szoveg = "A megadott fájl (" + path + ") nem található.";
             }
             catch (System.UnauthorizedAccessException)
             {
                 // Ha hozzáférési hiba történik, értesítjük a felhasználót.
-                hibaszoveg = "A fájl nem kezelhető, mivel nincs megfelelő hozzáférés.";
+                hiba_szoveg = "A fájl nem kezelhető, mivel nincs megfelelő hozzáférés.";
             }
             catch (System.ArgumentException)
             {
                 // ArgumentException történik, ha a paraméter nem értelmezhető.
                 // Például "C:\Valami?.txt" esetén, mivel a Windows nem kezeli a "?"-t a fájlnévben.
-                hibaszoveg = "A megadott paraméter nem megfelelő.\nValószínűleg nem használható karaktereket tartalmaz.";
+                hiba_szoveg = "A megadott paraméter nem megfelelő.\nValószínűleg nem használható karaktereket tartalmaz.";
             }
             catch (System.IO.IOException ioex)
             {
@@ -66,13 +66,13 @@ namespace ClassStatistics
 
                 // Az 'ioex' helyi változó tárolja a hiba (Exception) objektumát.
                 // Így a szöveg kiolvashatóvá válik.
-                hibaszoveg = "Kezelési hiba történt: " + ioex.Message;
+                hiba_szoveg = "Kezelési hiba történt: " + ioex.Message;
             }
 
             // Ha a meghíváskor kértük az értesítést, akkor most megjelenítjük a hiba szövegét.
             if ( ertesitsen == true )
             {
-                System.Console.WriteLine(hibaszoveg);
+                System.Console.WriteLine(hiba_szoveg);
             }
 
             // Visszatérünk a létrehozott objektummal (vagy null-lal).
@@ -81,6 +81,7 @@ namespace ClassStatistics
             
         static void Main(string[] args)
         {
+            // Beállítjuk a konzolablak fejlécét.
             System.Console.Title = "Osztálystatisztika";
             
             // Rekordok száma.
@@ -88,22 +89,22 @@ namespace ClassStatistics
 
             // Ellenőrizzük, hogy létezik-e 'diakok.txt' fájl a futtatási mappában.
             string diak_fajl = "diakok.txt";
-            bool diakFajl_exists = System.IO.File.Exists(diak_fajl);
+            bool diak_fajl_letezik = System.IO.File.Exists(diak_fajl);
             bool diakok_fajlbol = false;
             FileStream olvas_handle = null;
-            StreamReader strRead = null;
+            StreamReader stream_olvaso = null;
 
             // Ha létezik, kiépítünk egy kapcsolatot a fájlhoz és beolvassuk a diákokat.
-            if (diakFajl_exists == true)
+            if (diak_fajl_letezik == true)
             {
-                olvas_handle = createStream(diak_fajl, FileMode.Open, FileAccess.Read, false);
+                olvas_handle = create_FileStream(diak_fajl, FileMode.Open, FileAccess.Read, false);
 
                 if (olvas_handle != null)
                 {
-                    strRead = new StreamReader(olvas_handle);
+                    stream_olvaso = new StreamReader(olvas_handle);
 
                     // Beolvassuk a rekordok számát az első sorból.
-                    rekord = System.Convert.ToUInt32(strRead.ReadLine());
+                    rekord = System.Convert.ToUInt32(stream_olvaso.ReadLine());
 
                     // A diákok most fájlból kerültek beolvasásra, úgyhogy
                     // letiltjuk a későbbi direkt beolvasást.
@@ -115,9 +116,9 @@ namespace ClassStatistics
             if (diakok_fajlbol == false)
             {
                 // Bekérjük a felhasználótól a diákok számát.
-                bool rekFail = true; // Hiba állapota
+                bool rekord_bekeres_hiba = true; // Hiba állapota
 
-                while (rekFail)
+                while (rekord_bekeres_hiba)
                 {
                     // Az itt megadott ciklus addig fut, ameddig hiba van a bekért adatban.
 
@@ -128,14 +129,14 @@ namespace ClassStatistics
 
                         System.Console.Write("Kérem adja meg a diákok számát (0-50): ");
                         rekord = System.Convert.ToUInt16(System.Console.ReadLine());
-                        rekFail = false;
+                        rekord_bekeres_hiba = false;
                     }
                     catch (System.FormatException)
                     {
                         // Formátumhiba esetén a hibaváltozó visszaáll igazra (a ciklus újra le fog futni)
                         // és értesítjük a felhasználót a vétségéről.
 
-                        rekFail = true;
+                        rekord_bekeres_hiba = true;
                         System.Console.WriteLine("A megadott szám nem egész szám.");
                         System.Console.WriteLine();
                     }
@@ -143,7 +144,7 @@ namespace ClassStatistics
                     {
                         // Hasonló módon járunk el túlcsordulás (tartományhiba) esetén is.
 
-                        rekFail = true;
+                        rekord_bekeres_hiba = true;
                         System.Console.WriteLine("A megadott szám kívül esik a megengedett (0-50) tartományon.");
                         System.Console.WriteLine();
                     }
@@ -154,7 +155,7 @@ namespace ClassStatistics
 
                         if (rekord < 0 || rekord > 50)
                         {
-                            rekFail = true;
+                            rekord_bekeres_hiba = true;
                             System.Console.WriteLine("A megadott szám kívül esik a megengedett (0-50) tartományon.");
                             System.Console.WriteLine();
                         }
@@ -187,12 +188,12 @@ namespace ClassStatistics
 
                 string nev = "";
                 uint ev = 0, honap = 0, nap = 0, matekjegy = 0;
-                bool rekordFail = true;
+                bool rekord_bekeres_hiba = true;
 
                 // Ha nem fájlból történik a beolvasás, akkor kézzel kérjük be az adatokat.
                 if (diakok_fajlbol == false)
                 {
-                    while (rekordFail)
+                    while (rekord_bekeres_hiba)
                     {
                         // A már ismert struktúrát használva itt is addig
                         // kérünk be adatokat a felhasználótól, amíg azok megfelelőek.
@@ -256,7 +257,7 @@ namespace ClassStatistics
                                 System.Console.WriteLine(System.Convert.ToString(matekjegy));
                             }
 
-                            rekordFail = false;
+                            rekord_bekeres_hiba = false;
 
                             // Itt elvégzünk egy hibakezelést, amely a 'matekjegy' nem eleme [0; 5] Z+
                             // intervallum hibáját hivatott megelőzni.
@@ -264,7 +265,7 @@ namespace ClassStatistics
                             if (matekjegy <= 0 || matekjegy > 5)
                             {
                                 matekjegy = 0;
-                                rekordFail = true;
+                                rekord_bekeres_hiba = true;
                                 System.Console.WriteLine("A matematika osztályzat érvénytelen.");
                                 System.Console.WriteLine();
                             }
@@ -274,7 +275,7 @@ namespace ClassStatistics
                             // Formátumhiba esetén a hibaváltozó visszaáll igazra (a ciklus újra le fog futni)
                             // és értesítjük a felhasználót a vétségéről.
 
-                            rekordFail = true;
+                            rekord_bekeres_hiba = true;
                             System.Console.WriteLine("A megadott szám nem egész szám.");
                             System.Console.WriteLine();
                         }
@@ -282,7 +283,7 @@ namespace ClassStatistics
                         {
                             // Hasonló módon járunk el túlcsordulás (tartományhiba) esetén is.
 
-                            rekordFail = true;
+                            rekord_bekeres_hiba = true;
                             System.Console.WriteLine("A megadott szám kívül esik a megengedett tartományon.");
                             System.Console.WriteLine();
                         }
@@ -291,9 +292,9 @@ namespace ClassStatistics
                 else if (diakok_fajlbol == true)
                 {
                     // Fájlból történő beolvasás során végrehatjuk azt és feltöltjük a váltózokat.
-                    if (olvas_handle != null && strRead != null)
+                    if (olvas_handle != null && stream_olvaso != null)
                     {
-                        string adatsor = strRead.ReadLine();
+                        string adatsor = stream_olvaso.ReadLine();
                         string[] ertekek = adatsor.Split(new string[] { ";" }, StringSplitOptions.None);
 
                         // Az 'ertekek' tömb most tartalmazza a sor elemeit.
@@ -317,16 +318,16 @@ namespace ClassStatistics
             System.Console.WriteLine(System.Convert.ToString(diakok.Length) + " rekord tárolva a memóriába.");
 
             // Lezárjuk a diákokat beolvasó adatfolyamot.
-            if (diakFajl_exists == true)
+            if (diak_fajl_letezik == true)
             {
                 if (olvas_handle != null)
                 {
                     olvas_handle.Close();
                 }
 
-                if (strRead != null)
+                if (stream_olvaso != null)
                 {
-                    strRead.Close();
+                    stream_olvaso.Close();
                 }
             }
             // Megtörténik a diákok fájlba kiírása (ha a felhasználó ezt kéri).
@@ -334,44 +335,44 @@ namespace ClassStatistics
 
             // Két logikai változó. Az első a beírt érték hibáját jelzi (érvénytelen bemenet),
             // a másik a tényleges kiíratási szándékot tartalmazza.
-            bool wrDiakError = true;
-            bool wrDiak = false;
+            bool iras_bemenet_hiba = true;
+            bool fajlba_iras = false;
             
             // Addig próbáljuk a usert rávenni, hogy írjon be értéket, amíg a beírt érték jó nem lesz.
-            while (wrDiakError)
+            while (iras_bemenet_hiba)
             {
                 // Bekérjük a választ.
                 System.Console.WriteLine("FIGYELEM! A meglévő fájl felül lesz írva!");
                 System.Console.Write("Fájlba mentsük a diákokat és az eredményeket? (I/N) ");
-                string wrVal = System.Console.ReadLine();
+                string valasz = System.Console.ReadLine();
 
                 // Feltételezzük, hogy a bemenet jó, így a ciklust letiltjuk.
-                wrDiakError = false;
+                iras_bemenet_hiba = false;
 
-                if (wrVal == "i" || wrVal == "I")
+                if (valasz == "i" || valasz == "I")
                 {
                     // Ha a felhasználó igazat írt, beállítjuk, hogy szeretne tároltatni.
-                    wrDiak = true;
+                    fajlba_iras = true;
                 }
-                else if (wrVal == "n" || wrVal == "N")
+                else if (valasz == "n" || valasz == "N")
                 {
                     // Nemleges válasz esetén (biztonsági okokból még egyszer) beállítjuk
                     // a nemleges választ. (Itt használhatnánk az alap értéket, ami ugyaúgy FALSE.)
-                    wrDiak = false;
+                    fajlba_iras = false;
                 }
                 else
                 {
                     // Hibás válasz esetén visszakapcsoljuk a ciklus újra lefutását.
-                    wrDiakError = true;
+                    iras_bemenet_hiba = true;
                 }
             }
             
-            if (wrDiak == true)
+            if (fajlba_iras == true)
             {
                 // Létrehozzuk a diákokat tartalmazó fájlt és a hozzá tartozó folyamot.
-                FileStream handle = createStream(diak_fajl, FileMode.Create, FileAccess.Write, true);
+                FileStream diaktomb_iras = create_FileStream(diak_fajl, FileMode.Create, FileAccess.Write, true);
                 
-                if (handle == null)
+                if (diaktomb_iras == null)
                 {
                     // Ha hiba történt a kapcsolat létrehozása közben, akkor megjelenítjük azt.
 
@@ -383,13 +384,13 @@ namespace ClassStatistics
                     // Ha nem történt hiba és a fájl írható, akkor beleírjuk a diákokat.
 
                     // A fejlécbe (első sor) a diákok száma kerül.
-                    StreamWriter strWrite = new StreamWriter(handle);
-                    strWrite.WriteLine(System.Convert.ToString(rekord));
+                    StreamWriter stream_diaktomb_iras = new StreamWriter(diaktomb_iras);
+                    stream_diaktomb_iras.WriteLine(System.Convert.ToString(rekord));
 
                     // Kiürítjük (a merevlemezre írjuk) a memóriában található buffert.
-                    strWrite.Flush();
+                    stream_diaktomb_iras.Flush();
                     
-                    foreach (Student iterDiak in diakok)
+                    foreach (Student aktualis_diak in diakok)
                     {
                         // Majd iterációval végiglépkedünk a diakok tömbön
                         // és minden elemet beleírunk a fájlba.
@@ -397,52 +398,52 @@ namespace ClassStatistics
                         // A beíráskor a sorokat a sortörés karakter, az "oszlopokat" pedig ';'
                         // (pontosvessző) választja el, később ezek mentén tudunk olvasni.
 
-                        strWrite.Write(System.Convert.ToString(iterDiak.id) + ";");
-                        strWrite.Write(System.Convert.ToString(iterDiak.nev) + ";");
-                        strWrite.Write(System.Convert.ToString(iterDiak.ev) + ";");
-                        strWrite.Write(System.Convert.ToString(iterDiak.honap) + ";");
-                        strWrite.Write(System.Convert.ToString(iterDiak.nap) + ";");
-                        strWrite.Write(System.Convert.ToString(iterDiak.matekjegy) + ";");
+                        stream_diaktomb_iras.Write(System.Convert.ToString(aktualis_diak.id) + ";");
+                        stream_diaktomb_iras.Write(System.Convert.ToString(aktualis_diak.nev) + ";");
+                        stream_diaktomb_iras.Write(System.Convert.ToString(aktualis_diak.ev) + ";");
+                        stream_diaktomb_iras.Write(System.Convert.ToString(aktualis_diak.honap) + ";");
+                        stream_diaktomb_iras.Write(System.Convert.ToString(aktualis_diak.nap) + ";");
+                        stream_diaktomb_iras.Write(System.Convert.ToString(aktualis_diak.matekjegy) + ";");
                         
                         // Beírjuk a sorvége karaktert, majd a fájlrendszerbe küldjük a változtatásokat.
-                        strWrite.WriteLine();
-                        strWrite.Flush();
+                        stream_diaktomb_iras.WriteLine();
+                        stream_diaktomb_iras.Flush();
                     }
 
                     // Lezárjuk a jelenlegi írási kapcsolatot.
-                    strWrite.Close();
-                    handle.Close();
+                    stream_diaktomb_iras.Close();
+                    diaktomb_iras.Close();
                 }
             }
 
             // Végigmegyünk (iteráljuk) a beolvasott adatokat,
             // meghatározva a feladat megoldásait.
-            int jegyOsszeg = 0;
-            bool bukas = false, kituno = false;
-            uint bukott_szam = 0, kituno_szam = 0;
-            Student[] bukottak = new Student[rekord];
-            Student[] kitunok = new Student[rekord];
+            int jegy_osszeg = 0;
+            bool volt_bukas = false, volt_kituno = false;
+            uint bukottak_szama = 0, kitunok_szama = 0;
+            Student[] bukott_diakok = new Student[rekord];
+            Student[] kituno_diakok = new Student[rekord];
 
-            foreach (Student diak in diakok)
+            foreach (Student aktualis_diak in diakok)
             {
                 // Hozzáadjuk a jegyek összegéhez a jelenlegi matematika jegyet.
-                jegyOsszeg += System.Convert.ToInt32(diak.matekjegy);
+                jegy_osszeg += System.Convert.ToInt32(aktualis_diak.matekjegy);
 
-                // Ha a diák kitűnő, vagy bukott tanuló, beállítjuk
-                // a logikai változót, hogy létezik kitűnő/bukott diák
+                // Ha a diák kitűnő, vagy aktualis_bukott_diak tanuló, beállítjuk
+                // a logikai változót, hogy létezik kitűnő/aktualis_bukott_diak diák
                 // és a kitűnőket/bukottakat tároló tömbbe beírjuk a diákot.
 
-                if ( diak.matekjegy == 1 )
+                if ( aktualis_diak.matekjegy == 1 )
                 {
-                    bukas = true;
-                    bukottak[bukott_szam] = diak;
-                    bukott_szam++;
+                    volt_bukas = true;
+                    bukott_diakok[bukottak_szama] = aktualis_diak;
+                    bukottak_szama++;
                 }
-                else if ( diak.matekjegy == 5 )
+                else if ( aktualis_diak.matekjegy == 5 )
                 {
-                    kituno = true;
-                    kitunok[kituno_szam] = diak;
-                    kituno_szam++;
+                    volt_kituno = true;
+                    kituno_diakok[kitunok_szama] = aktualis_diak;
+                    kitunok_szama++;
                 }
             }
 
@@ -450,123 +451,132 @@ namespace ClassStatistics
 
             // Ha az adatok kiírását kértük, készítünk egy
             // újabb FileStream és StreamWriter objektumot.
-            string resFajl = "eredmeny.txt";
-            FileStream resHandle = null;
-            StreamWriter strResult = null;
+            string eredmeny_fajl = "eredmeny.txt";
+            FileStream eredmeny_iras = null;
+            StreamWriter stream_eredmeny_iras = null;
 
-            if (wrDiak == true)
+            if (fajlba_iras == true)
             {
-                resHandle = createStream(resFajl, FileMode.Create, FileAccess.Write, true);
+                eredmeny_iras = create_FileStream(eredmeny_fajl, FileMode.Create, FileAccess.Write, true);
 
-                if (resHandle == null)
+                if (eredmeny_iras == null)
                 {
                     // Ha hiba történt a fájl létrehozása során, értesítjük a usert.
-                    System.Console.Write("A diákokat tartalmazó fájl (" + Directory.GetCurrentDirectory() + "\\" + resFajl);
+                    System.Console.Write("A diákokat tartalmazó fájl (" + Directory.GetCurrentDirectory() + "\\" + eredmeny_fajl);
                     System.Console.WriteLine(") nem írható.");
 
-                    // És a wrDiak változót hamisra állítjuk, így nem történik későbbi írás.
-                    wrDiak = false;
+                    // És a fajlba_iras változót hamisra állítjuk, így nem történik későbbi írás.
+                    fajlba_iras = false;
                 }
                 else
                 {
                     // Ha sikerült a kapcsolat kiépítése, akkor létrehozzuk az író adatfolyamot.
-                    strResult = new StreamWriter(resHandle);
+                    stream_eredmeny_iras = new StreamWriter(eredmeny_iras);
                 }
             }
 
-            double atlag = System.Convert.ToDouble(jegyOsszeg) / System.Convert.ToDouble(rekord);
+            double atlag = System.Convert.ToDouble(jegy_osszeg) / System.Convert.ToDouble(rekord);
             System.Console.WriteLine("A tanulók érdemjegyeinek átlaga: " + System.Convert.ToString(atlag));
             
             // Ha az eredmények kiírását kértük, akkor elsőnek beírjuk az átlagot.
-            if ( wrDiak == true )
+            if (fajlba_iras == true)
             {
-                strResult.WriteLine("A tanulók érdemjegyeinek átlaga: " + System.Convert.ToString(atlag));
-                strResult.Flush();
+                stream_eredmeny_iras.WriteLine("A tanulók érdemjegyeinek átlaga: " + System.Convert.ToString(atlag));
+                stream_eredmeny_iras.Flush();
             }
 
-            // Ha vannak bukott diákok, megjelenítjük az adataikat, újbóli iterációval.
-            if (bukas)
+            // Ha vannak aktualis_bukott_diak diákok, megjelenítjük az adataikat, újbóli iterációval.
+            if (volt_bukas)
             {
                 System.Console.WriteLine();
-                System.Console.WriteLine("Megbuktak matematikából (" + System.Convert.ToString(bukott_szam) + " diák):");
+                System.Console.WriteLine("Megbuktak matematikából (" + System.Convert.ToString(bukottak_szama) + " diák):");
 
-                if ( wrDiak == true )
+                if (fajlba_iras == true)
                 {
-                    strResult.WriteLine();
-                    strResult.WriteLine("Megbuktak matematikából (" + System.Convert.ToString(bukott_szam) + " diák):");
-                    strResult.Flush();
+                    stream_eredmeny_iras.WriteLine();
+                    stream_eredmeny_iras.WriteLine("Megbuktak matematikából (" + System.Convert.ToString(bukottak_szama) + " diák):");
+                    stream_eredmeny_iras.Flush();
                 }
 
-                foreach (Student bukott in bukottak)
+                foreach (Student aktualis_bukott_diak in bukott_diakok)
                 {
-                    // Mivel a bukottak tömb tartalmazhat üres elemeket, kell egy védelem.
+                    // Mivel a bukott_diakok tömb tartalmazhat üres elemeket, kell egy védelem.
                     // Így elkerüljük az üres (null) elemek iterációjából adódó hibát.
-                    if (bukott != null)
+                    if (aktualis_bukott_diak != null)
                     {
-                        System.Console.Write(System.Convert.ToString(bukott.id + 1) + ". " + bukott.nev);
-                        System.Console.Write(" (" + System.Convert.ToString(bukott.ev) + ". ");
-                        System.Console.Write(System.Convert.ToString(bukott.honap) + ". ");
-                        System.Console.WriteLine(System.Convert.ToString(bukott.nap) + ".)");
+                        string diak_sor = build_diaksor(aktualis_bukott_diak.id, aktualis_bukott_diak.nev, aktualis_bukott_diak.ev, aktualis_bukott_diak.honap, aktualis_bukott_diak.nap);
 
-                        // A bukott diákokat is beleírjuk az eredmények fájlba.
-                        if ( wrDiak == true ) 
+                        System.Console.Write(diak_sor);
+
+                        // A aktualis_bukott_diak diákokat is beleírjuk az eredmények fájlba.
+                        if (fajlba_iras == true) 
                         {
-                            strResult.Write(System.Convert.ToString(bukott.id + 1) + ". " + bukott.nev);
-                            strResult.Write(" (" + System.Convert.ToString(bukott.ev) + ". ");
-                            strResult.Write(System.Convert.ToString(bukott.honap) + ". ");
-                            strResult.WriteLine(System.Convert.ToString(bukott.nap) + ".)");
-                            strResult.Flush();
+                            stream_eredmeny_iras.Write(diak_sor);
+                            stream_eredmeny_iras.Flush();
                         }
                     }
                 }
             }
 
             // Hasonló módon eljárunk a kitűnőkkel is.
-            // Ha vannak bukott diákok, megjelenítjük az adataikat, újbóli iterációval.
-            if (kituno)
+            // Ha vannak aktualis_bukott_diak diákok, megjelenítjük az adataikat, újbóli iterációval.
+            if (volt_kituno)
             {
                 System.Console.WriteLine();
-                System.Console.WriteLine("Kitűnő eredményt értek el (" + System.Convert.ToString(kituno_szam) + " diák):");
+                System.Console.WriteLine("Kitűnő eredményt értek el (" + System.Convert.ToString(kitunok_szama) + " diák):");
 
-                if (wrDiak == true)
+                if (fajlba_iras == true)
                 {
-                    strResult.WriteLine();
-                    strResult.WriteLine("Kitűnő eredményt értek el (" + System.Convert.ToString(kituno_szam) + " diák):");
-                    strResult.Flush();
+                    stream_eredmeny_iras.WriteLine();
+                    stream_eredmeny_iras.WriteLine("Kitűnő eredményt értek el (" + System.Convert.ToString(kitunok_szama) + " diák):");
+                    stream_eredmeny_iras.Flush();
                 }
 
-                foreach (Student kituno_diak in kitunok)
+                foreach (Student aktualis_kituno_diak in kituno_diakok)
                 {
-                    if (kituno_diak != null)
+                    if (aktualis_kituno_diak != null)
                     {
-                        System.Console.Write(System.Convert.ToString(kituno_diak.id + 1) + ". " + kituno_diak.nev);
-                        System.Console.Write(" (" + System.Convert.ToString(kituno_diak.ev) + ". ");
-                        System.Console.Write(System.Convert.ToString(kituno_diak.honap) + ". ");
-                        System.Console.WriteLine(System.Convert.ToString(kituno_diak.nap) + ".)");
+                        string diak_sor = build_diaksor(aktualis_kituno_diak.id, aktualis_kituno_diak.nev, aktualis_kituno_diak.ev, aktualis_kituno_diak.honap, aktualis_kituno_diak.nap);
 
-                        if (wrDiak == true)
+                        System.Console.Write(diak_sor);
+
+                        if (fajlba_iras == true)
                         {
-                            strResult.Write(System.Convert.ToString(kituno_diak.id + 1) + ". " + kituno_diak.nev);
-                            strResult.Write(" (" + System.Convert.ToString(kituno_diak.ev) + ". ");
-                            strResult.Write(System.Convert.ToString(kituno_diak.honap) + ". ");
-                            strResult.WriteLine(System.Convert.ToString(kituno_diak.nap) + ".)");
-                            strResult.Flush();
+                            stream_eredmeny_iras.Write(diak_sor);
+                            stream_eredmeny_iras.Flush();
                         }
                     }
                 }
             }
 
             // Lezárjuk a kapcsolatot az eredmények fájllal.
-            if (wrDiak == true)
+            if (fajlba_iras == true)
             {
-                strResult.Close();
-                resHandle.Close();
+                stream_eredmeny_iras.Close();
+                eredmeny_iras.Close();
             }
 
             // Várunk egy billentyűleütésre a program befejezése előtt.
             System.Console.WriteLine();
             System.Console.Write("A kilépéshéz nyomjon ENTER-t.");
             System.Console.ReadLine();
+            Environment.Exit(0);
+        }
+
+        private static string build_diaksor(uint id, string nev, uint ev, uint honap, uint nap)
+        {
+            /* Ez a függvény egy string sort készít az adott diákról.
+             * Ezzel a függvénnyel készül a aktualis_bukott_diak és kitűnő lista.
+             */
+
+            string diak_sor;
+
+            diak_sor = System.Convert.ToString(id + 1) + ". " + nev;
+            diak_sor += " (" + System.Convert.ToString(ev) + ". ";
+            diak_sor += System.Convert.ToString(honap) + ". ";
+            diak_sor += System.Convert.ToString(nap) + ".)";
+
+            return diak_sor;
         }
     }
 
