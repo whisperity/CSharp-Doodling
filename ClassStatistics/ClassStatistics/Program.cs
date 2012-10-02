@@ -2,11 +2,20 @@
 using System.Collections.Generic;
 using System.Text;
 
+// A System.IO osztály szükséges a fájlműveletekhez.
+using System.IO;
+
 /* FELADATLEÍRÁS
  * -------------
  * Készíts programot, ami max. 50 ember adatait bekéri
  * az elemszámot, nevet, születési dátumot és matematika évvégi jegyet,
  * majd átlagol, meghatározza van-e bukás, kik buktak, van-e ötös, kik kaptak ötöst!
+ */
+
+/* FELADATLEÍRÁS
+ * -------------
+ * Alakítsa át úgy a programot, hogy az a rekordokat fájlból
+ * is képes legyen kezelni, valamint a kimenet fájlba íródjon.
  */
 
 namespace ClassStatistics
@@ -187,6 +196,126 @@ namespace ClassStatistics
                 diakok[i] = new Student(i, nev, ev, honap, nap, matekjegy);
 
                 System.Console.WriteLine("Rekord #" + System.Convert.ToString(i + 1) + " sikeresen tárolva.");
+            }
+            System.Console.WriteLine(System.Convert.ToString(diakok.Length) + " rekord tárolva a memóriába.");
+
+            // Megtörténik a diákok fájlba kiírása (ha a felhasználó ezt kéri).
+            System.Console.WriteLine();
+
+            // Két logikai változó. Az első a beírt érték hibáját jelzi (érvénytelen bemenet),
+            // a másik a tényleges kiíratási szándékot tartalmazza.
+            bool wrDiakError = true;
+            bool wrDiak = false;
+            
+            // Addig próbáljuk a usert rávenni, hogy írjon be értéket, amíg a beírt érték jó nem lesz.
+            while (wrDiakError)
+            {
+                // Bekérjük a választ.
+                System.Console.WriteLine("FIGYELEM! A meglévő fájl felül lesz írva!");
+                System.Console.Write("Fájlba mentsük a diákokat és az eredményeket? (I/N) ");
+                string wrVal = System.Console.ReadLine();
+
+                // Feltételezzük, hogy a bemenet jó, így a ciklust letiltjuk.
+                wrDiakError = false;
+
+                if (wrVal == "i" || wrVal == "I")
+                {
+                    // Ha a felhasználó igazat írt, beállítjuk, hogy szeretne tároltatni.
+                    wrDiak = true;
+                }
+                else if (wrVal == "n" || wrVal == "N")
+                {
+                    // Nemleges válasz esetén (biztonsági okokból még egyszer) beállítjuk
+                    // a nemleges választ. (Itt használhatnánk az alap értéket, ami ugyaúgy FALSE.)
+                    wrDiak = false;
+                }
+                else
+                {
+                    // Hibás válasz esetén visszakapcsoljuk a ciklus újra lefutását.
+                    wrDiakError = true;
+                }
+            }
+            
+            if (wrDiak == true)
+            {
+                // Diákok letárolása.
+                string fajl = "diakok.txt";
+
+                // Készítünk egy FileStream objektumot amely a hozzáférési "fogantyú" lesz.
+                // Itt 'null'-ra kell inicializálni, mivel különben "Use of unassigned local variable" hibát kapunk.
+                FileStream handle = null;
+                bool iohiba = false;
+
+                try
+                {
+                    // Megpróbáljuk létrehozni a fájlhoz való kapcsolatot.
+                    // Ez különböző hibákkal térhet vissza, amelyeket későbbi catch(){} blokkokban kezelünk.
+                    handle = new FileStream(fajl, FileMode.Create, FileAccess.ReadWrite);
+                }
+                catch (System.IO.IOException ioex)
+                {
+                    // Az 'ioex' helyi változó tárolja a hiba (Exception) objektumát.
+                    // Így a szöveg kiolvashatóvá válik.
+                    System.Console.WriteLine("Kezelési hiba történt: " + ioex.Message);
+                    iohiba = true;
+                }
+                catch (System.UnauthorizedAccessException)
+                {
+                    // Ha hozzáférési hiba történik, értesítjük a felhasználót.
+                    System.Console.WriteLine("A fájl nem kezelhető, mivel nincs megfelelő hozzáférés.");
+                    iohiba = true;
+                }
+                catch (System.ArgumentException)
+                {
+                    // ArgumentException történik, ha a paraméter nem értelmezhető.
+                    // Például "C:\Valami?.txt" esetén, mivel a Windows nem kezeli a "?"-t a fájlnévben.
+                    System.Console.WriteLine("A megadott paraméter nem megfelelő.");
+                    System.Console.WriteLine("Valószínűleg nem használható karaktereket tartalmaz.");
+                    iohiba = true;
+                }
+
+                if (iohiba == true)
+                {
+                    // Ha az iohiba korábban true-ra állt, megjelenítjük a hibát.
+
+                    System.Console.Write("A diákokat tartalmazó fájl ( " + Directory.GetCurrentDirectory() + "\\" + fajl);
+                    System.Console.WriteLine(") nem írható.");
+                }
+                else if (iohiba == false)
+                {
+                    // Ha nem történt hiba és a fájl írható, akkor beleírjuk a diákokat.
+
+                    // A fejlécbe (első sor) a diákok száma kerül.
+                    StreamWriter strWrite = new StreamWriter(handle);
+                    strWrite.Write(System.Convert.ToString(rekord));
+                    strWrite.WriteLine();
+
+                    // Kiürítjük (a merevlemezre írjuk) a memóriában található buffert.
+                    strWrite.Flush();
+                    
+                    foreach (Student iterDiak in diakok)
+                    {
+                        // Majd iterációval végiglépkedünk a diakok tömbön
+                        // és minden elemet beleírunk a fájlba.
+
+                        // A beíráskor a sorokat a sortörés karakter, az "oszlopokat" pedig ';'
+                        // (pontosvessző) választja el, később ezek mentén tudunk olvasni.
+
+                        strWrite.Write(System.Convert.ToString(iterDiak.id) + ";");
+                        strWrite.Write(System.Convert.ToString(iterDiak.nev) + ";");
+                        strWrite.Write(System.Convert.ToString(iterDiak.ev) + ";");
+                        strWrite.Write(System.Convert.ToString(iterDiak.honap) + ";");
+                        strWrite.Write(System.Convert.ToString(iterDiak.nap) + ";");
+                        strWrite.Write(System.Convert.ToString(iterDiak.matekjegy) + ";");
+                        
+                        // Beírjuk a sorvége karaktert, majd a fájlrendszerbe küldjük a változtatásokat.
+                        strWrite.WriteLine();
+                        strWrite.Flush();
+                    }
+
+                    // Lezárjuk a kapcsolatot.
+                    strWrite.Close();
+                }
             }
 
             // Végigmegyünk (iteráljuk) a beolvasott adatokat,
