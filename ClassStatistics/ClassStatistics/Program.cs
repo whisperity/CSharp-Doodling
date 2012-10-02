@@ -22,56 +22,149 @@ namespace ClassStatistics
 {
     class Program
     {
+        private static FileStream createStream(string path, FileMode mode, FileAccess access, bool ertesitsen = true)
+        {
+            /* Ez a függvény a megadott fájlhoz létrehoz
+             * egy fájl adatfolyam mutatót, és ezzel visszatér.
+             * 
+             * Menet közben elvégzünk néhány szükséges hibakezelést.
+             */
+
+            // Készítünk egy FileStream objektumot amely a hozzáférési "fogantyú" lesz.
+            // Itt 'null'-ra kell inicializálni, mivel különben "Use of unassigned local variable" hibát kapunk.
+            FileStream new_handle = null;
+
+            // A későbbi hiba megjelenítéséhez egy stringbe tároljuk a hiba szöveget.
+            string hibaszoveg = "";
+            try
+            {
+                // Megpróbáljuk létrehozni a fájlhoz való kapcsolatot.
+                // Ez különböző hibákkal térhet vissza, amelyeket későbbi catch(){} blokkokban kezelünk.
+                new_handle = new FileStream(path, mode, access);
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                // Nem található fájl esetén megjelenítjük a megfelelő hibát.
+                
+                hibaszoveg = "A megadott fájl (" + path + ") nem található.";
+            }
+            catch (System.UnauthorizedAccessException)
+            {
+                // Ha hozzáférési hiba történik, értesítjük a felhasználót.
+                hibaszoveg = "A fájl nem kezelhető, mivel nincs megfelelő hozzáférés.";
+            }
+            catch (System.ArgumentException)
+            {
+                // ArgumentException történik, ha a paraméter nem értelmezhető.
+                // Például "C:\Valami?.txt" esetén, mivel a Windows nem kezeli a "?"-t a fájlnévben.
+                hibaszoveg = "A megadott paraméter nem megfelelő.\nValószínűleg nem használható karaktereket tartalmaz.";
+            }
+            catch (System.IO.IOException ioex)
+            {
+                // Az általános IOException (I/O hiba) akkor kerül megjelenítésre,
+                // ha a konkrét hibatípus nem ismert.
+
+                // Az 'ioex' helyi változó tárolja a hiba (Exception) objektumát.
+                // Így a szöveg kiolvashatóvá válik.
+                hibaszoveg = "Kezelési hiba történt: " + ioex.Message;
+            }
+
+            // Ha a meghíváskor kértük az értesítést, akkor most megjelenítjük a hiba szövegét.
+            if ( ertesitsen == true )
+            {
+                System.Console.WriteLine(hibaszoveg);
+            }
+
+            // Visszatérünk a létrehozott objektummal (vagy null-lal).
+            return new_handle;
+        }
+            
         static void Main(string[] args)
         {
             System.Console.Title = "Osztálystatisztika";
             
-            // Bekérjük a felhasználótól a diákok számát.
-            uint rekord = 0; // Rekordok száma
-            bool rekFail = true; // Hiba állapota
+            // Rekordok száma.
+            uint rekord = 0;
 
-            while (rekFail)
+            // Ellenőrizzük, hogy létezik-e 'diakok.txt' fájl a futtatási mappában.
+            string diak_fajl = "diakok.txt";
+            bool diakFajl_exists = System.IO.File.Exists(diak_fajl);
+            bool diakok_fajlbol = false;
+            FileStream olvas_handle = null;
+            StreamReader strRead = null;
+
+            // Ha létezik, kiépítünk egy kapcsolatot a fájlhoz és beolvassuk a diákokat.
+            if (diakFajl_exists == true)
             {
-                // Az itt megadott ciklus addig fut, ameddig hiba van a bekért adatban.
+                olvas_handle = createStream(diak_fajl, FileMode.Open, FileAccess.Read, false);
 
-                try
+                if (olvas_handle != null)
                 {
-                    // A try{} blokk megpróbálja bekérni a diákok számát, azt konvertálni
-                    // majd a hiba változót hamisra állítani (megállítani az egyébként végtelen ciklust).
+                    strRead = new StreamReader(olvas_handle);
 
-                    System.Console.Write("Kérem adja meg a diákok számát (0-50): ");
-                    rekord = System.Convert.ToUInt16(System.Console.ReadLine());
-                    rekFail = false;
+                    // Beolvassuk a rekordok számát az első sorból.
+                    rekord = System.Convert.ToUInt32(strRead.ReadLine());
+
+                    // A diákok most fájlból kerültek beolvasásra, úgyhogy
+                    // letiltjuk a későbbi direkt beolvasást.
+                    diakok_fajlbol = true;
                 }
-                catch (System.FormatException)
-                {
-                    // Formátumhiba esetén a hibaváltozó visszaáll igazra (a ciklus újra le fog futni)
-                    // és értesítjük a felhasználót a vétségéről.
+            }
 
-                    rekFail = true;
-                    System.Console.WriteLine("A megadott szám nem egész szám.");
-                    System.Console.WriteLine();
-                }
-                catch (System.OverflowException)
-                {
-                    // Hasonló módon járunk el túlcsordulás (tartományhiba) esetén is.
+            // Ha a diákok nem fájlból kerülnek beolvasásra, akkor bekérjük kézzel.
+            if (diakok_fajlbol == false)
+            {
+                // Bekérjük a felhasználótól a diákok számát.
+                bool rekFail = true; // Hiba állapota
 
-                    rekFail = true;
-                    System.Console.WriteLine("A megadott szám kívül esik a megengedett (0-50) tartományon.");
-                    System.Console.WriteLine();
-                }
-                finally
+                while (rekFail)
                 {
-                    // A finally{} blokk lefut akkor is ha volt hiba és akkor is ha nem.
-                    // Itt érvényesítjük a feladat szempontjából szükséges feltételt: max. 50 rekord lehetséges.
+                    // Az itt megadott ciklus addig fut, ameddig hiba van a bekért adatban.
 
-                    if (rekord < 0 || rekord > 50)
+                    try
                     {
+                        // A try{} blokk megpróbálja bekérni a diákok számát, azt konvertálni
+                        // majd a hiba változót hamisra állítani (megállítani az egyébként végtelen ciklust).
+
+                        System.Console.Write("Kérem adja meg a diákok számát (0-50): ");
+                        rekord = System.Convert.ToUInt16(System.Console.ReadLine());
+                        rekFail = false;
+                    }
+                    catch (System.FormatException)
+                    {
+                        // Formátumhiba esetén a hibaváltozó visszaáll igazra (a ciklus újra le fog futni)
+                        // és értesítjük a felhasználót a vétségéről.
+
+                        rekFail = true;
+                        System.Console.WriteLine("A megadott szám nem egész szám.");
+                        System.Console.WriteLine();
+                    }
+                    catch (System.OverflowException)
+                    {
+                        // Hasonló módon járunk el túlcsordulás (tartományhiba) esetén is.
+
                         rekFail = true;
                         System.Console.WriteLine("A megadott szám kívül esik a megengedett (0-50) tartományon.");
                         System.Console.WriteLine();
                     }
+                    finally
+                    {
+                        // A finally{} blokk lefut akkor is ha volt hiba és akkor is ha nem.
+                        // Itt érvényesítjük a feladat szempontjából szükséges feltételt: max. 50 rekord lehetséges.
+
+                        if (rekord < 0 || rekord > 50)
+                        {
+                            rekFail = true;
+                            System.Console.WriteLine("A megadott szám kívül esik a megengedett (0-50) tartományon.");
+                            System.Console.WriteLine();
+                        }
+                    }
                 }
+            }
+            else if (diakok_fajlbol == true)
+            {
+                // Ha fájlból lettek belolvasva, csak kiírjuk a már beolvasott számot.
+                System.Console.WriteLine("Rekordok száma: " + System.Convert.ToString(rekord));
             }
 
             /* A feladat megvalósításához tömbtartalmú tömböket (ún. jagged array) fogok használni
@@ -96,99 +189,123 @@ namespace ClassStatistics
                 uint ev = 0, honap = 0, nap = 0, matekjegy = 0;
                 bool rekordFail = true;
 
-                while (rekordFail)
+                // Ha nem fájlból történik a beolvasás, akkor kézzel kérjük be az adatokat.
+                if (diakok_fajlbol == false)
                 {
-                    // A már ismert struktúrát használva itt is addig
-                    // kérünk be adatokat a felhasználótól, amíg azok megfelelőek.
-
-                    try
+                    while (rekordFail)
                     {
-                        System.Console.WriteLine();
-                        System.Console.WriteLine(System.Convert.ToString(i+1) + ". rekord:");
+                        // A már ismert struktúrát használva itt is addig
+                        // kérünk be adatokat a felhasználótól, amíg azok megfelelőek.
 
-                        // Ha már volt beolvasva név, akkor kiírjuk.
-                        // (Így tehát ha később hiba történik, itt nem kell újra megadni az adatot.)
-                        System.Console.Write("Név? ");
-                        if (nev == "")
+                        try
                         {
-                            nev = System.Console.ReadLine();
-                        }
-                        else
-                        {
-                            System.Console.WriteLine(nev);
-                        }
-                        
-                        // Hasonló módon járunk el a többi változó esetében is.
+                            System.Console.WriteLine();
+                            System.Console.WriteLine(System.Convert.ToString(i + 1) + ". rekord:");
 
-                        System.Console.Write("Születési év? ");
-                        if (ev == 0)
-                        {
-                            ev = System.Convert.ToUInt32(System.Console.ReadLine());
-                        }
-                        else
-                        {
-                            System.Console.WriteLine(System.Convert.ToString(ev));
-                        }
+                            // Ha már volt beolvasva név, akkor kiírjuk.
+                            // (Így tehát ha később hiba történik, itt nem kell újra megadni az adatot.)
+                            System.Console.Write("Név? ");
+                            if (nev == "")
+                            {
+                                nev = System.Console.ReadLine();
+                            }
+                            else
+                            {
+                                System.Console.WriteLine(nev);
+                            }
 
-                        System.Console.Write("Hónap? ");
-                        if (honap == 0)
-                        {
-                            honap = System.Convert.ToUInt32(System.Console.ReadLine());
-                        }
-                        else
-                        {
-                            System.Console.WriteLine(System.Convert.ToString(honap));
-                        }
+                            // Hasonló módon járunk el a többi változó esetében is.
 
-                        System.Console.Write("Nap? ");
-                        if (nap == 0)
-                        {
-                            nap = System.Convert.ToUInt32(System.Console.ReadLine());
-                        }
-                        else
-                        {
-                            System.Console.WriteLine(System.Convert.ToString(nap));
-                        }
+                            System.Console.Write("Születési év? ");
+                            if (ev == 0)
+                            {
+                                ev = System.Convert.ToUInt32(System.Console.ReadLine());
+                            }
+                            else
+                            {
+                                System.Console.WriteLine(System.Convert.ToString(ev));
+                            }
 
-                        System.Console.Write("Matekmatika évvégi osztályzat? ");
-                        if (matekjegy == 0)
-                        {
-                            matekjegy = System.Convert.ToUInt32(System.Console.ReadLine());
-                        }
-                        else
-                        {
-                            System.Console.WriteLine(System.Convert.ToString(matekjegy));
-                        }
+                            System.Console.Write("Hónap? ");
+                            if (honap == 0)
+                            {
+                                honap = System.Convert.ToUInt32(System.Console.ReadLine());
+                            }
+                            else
+                            {
+                                System.Console.WriteLine(System.Convert.ToString(honap));
+                            }
 
-                        rekordFail = false;
+                            System.Console.Write("Nap? ");
+                            if (nap == 0)
+                            {
+                                nap = System.Convert.ToUInt32(System.Console.ReadLine());
+                            }
+                            else
+                            {
+                                System.Console.WriteLine(System.Convert.ToString(nap));
+                            }
 
-                        // Itt elvégzünk egy hibakezelést, amely a 'matekjegy' nem eleme [0; 5] Z+
-                        // intervallum hibáját hivatott megelőzni.
-                        // Mivel nincs eldobott hiba, nincs is mit elkapni: egy normál if blokkal fogunk dolgozni.
-                        if (matekjegy <= 0 || matekjegy > 5)
+                            System.Console.Write("Matekmatika évvégi osztályzat? ");
+                            if (matekjegy == 0)
+                            {
+                                matekjegy = System.Convert.ToUInt32(System.Console.ReadLine());
+                            }
+                            else
+                            {
+                                System.Console.WriteLine(System.Convert.ToString(matekjegy));
+                            }
+
+                            rekordFail = false;
+
+                            // Itt elvégzünk egy hibakezelést, amely a 'matekjegy' nem eleme [0; 5] Z+
+                            // intervallum hibáját hivatott megelőzni.
+                            // Mivel nincs eldobott hiba, nincs is mit elkapni: egy normál if blokkal fogunk dolgozni.
+                            if (matekjegy <= 0 || matekjegy > 5)
+                            {
+                                matekjegy = 0;
+                                rekordFail = true;
+                                System.Console.WriteLine("A matematika osztályzat érvénytelen.");
+                                System.Console.WriteLine();
+                            }
+                        }
+                        catch (System.FormatException)
                         {
-                            matekjegy = 0;
+                            // Formátumhiba esetén a hibaváltozó visszaáll igazra (a ciklus újra le fog futni)
+                            // és értesítjük a felhasználót a vétségéről.
+
                             rekordFail = true;
-                            System.Console.WriteLine("A matematika osztályzat érvénytelen.");
+                            System.Console.WriteLine("A megadott szám nem egész szám.");
+                            System.Console.WriteLine();
+                        }
+                        catch (System.OverflowException)
+                        {
+                            // Hasonló módon járunk el túlcsordulás (tartományhiba) esetén is.
+
+                            rekordFail = true;
+                            System.Console.WriteLine("A megadott szám kívül esik a megengedett tartományon.");
                             System.Console.WriteLine();
                         }
                     }
-                    catch (System.FormatException)
+                }
+                else if (diakok_fajlbol == true)
+                {
+                    // Fájlból történő beolvasás során végrehatjuk azt és feltöltjük a váltózokat.
+                    if (olvas_handle != null && strRead != null)
                     {
-                        // Formátumhiba esetén a hibaváltozó visszaáll igazra (a ciklus újra le fog futni)
-                        // és értesítjük a felhasználót a vétségéről.
+                        string adatsor = strRead.ReadLine();
+                        string[] ertekek = adatsor.Split(new string[] { ";" }, StringSplitOptions.None);
 
-                        rekordFail = true;
-                        System.Console.WriteLine("A megadott szám nem egész szám.");
-                        System.Console.WriteLine();
-                    }
-                    catch (System.OverflowException)
-                    {
-                        // Hasonló módon járunk el túlcsordulás (tartományhiba) esetén is.
+                        // Az 'ertekek' tömb most tartalmazza a sor elemeit.
+                        // Most rendre feltöltjük a már deklarált változókat az értékekkel.
+                        i = System.Convert.ToUInt32(ertekek[0]);
+                        nev = ertekek[1];
+                        ev = System.Convert.ToUInt32(ertekek[2]);
+                        honap = System.Convert.ToUInt32(ertekek[3]);
+                        nap = System.Convert.ToUInt32(ertekek[4]);
+                        matekjegy = System.Convert.ToUInt32(ertekek[5]);
 
-                        rekordFail = true;
-                        System.Console.WriteLine("A megadott szám kívül esik a megengedett tartományon.");
-                        System.Console.WriteLine();
+                        System.Console.WriteLine("Rekord #" + System.Convert.ToString(i + 1) + " sikeresen beolvasva.");
                     }
                 }
 
@@ -199,6 +316,19 @@ namespace ClassStatistics
             }
             System.Console.WriteLine(System.Convert.ToString(diakok.Length) + " rekord tárolva a memóriába.");
 
+            // Lezárjuk a diákokat beolvasó adatfolyamot.
+            if (diakFajl_exists == true)
+            {
+                if (olvas_handle != null)
+                {
+                    olvas_handle.Close();
+                }
+
+                if (strRead != null)
+                {
+                    strRead.Close();
+                }
+            }
             // Megtörténik a diákok fájlba kiírása (ha a felhasználó ezt kéri).
             System.Console.WriteLine();
 
@@ -238,50 +368,17 @@ namespace ClassStatistics
             
             if (wrDiak == true)
             {
-                // Diákok letárolása.
-                string fajl = "diakok.txt";
+                // Létrehozzuk a diákokat tartalmazó fájlt és a hozzá tartozó folyamot.
+                FileStream handle = createStream(diak_fajl, FileMode.Create, FileAccess.Write, true);
+                
+                if (handle == null)
+                {
+                    // Ha hiba történt a kapcsolat létrehozása közben, akkor megjelenítjük azt.
 
-                // Készítünk egy FileStream objektumot amely a hozzáférési "fogantyú" lesz.
-                // Itt 'null'-ra kell inicializálni, mivel különben "Use of unassigned local variable" hibát kapunk.
-                FileStream handle = null;
-                bool iohiba = false;
-
-                try
-                {
-                    // Megpróbáljuk létrehozni a fájlhoz való kapcsolatot.
-                    // Ez különböző hibákkal térhet vissza, amelyeket későbbi catch(){} blokkokban kezelünk.
-                    handle = new FileStream(fajl, FileMode.Create, FileAccess.ReadWrite);
-                }
-                catch (System.IO.IOException ioex)
-                {
-                    // Az 'ioex' helyi változó tárolja a hiba (Exception) objektumát.
-                    // Így a szöveg kiolvashatóvá válik.
-                    System.Console.WriteLine("Kezelési hiba történt: " + ioex.Message);
-                    iohiba = true;
-                }
-                catch (System.UnauthorizedAccessException)
-                {
-                    // Ha hozzáférési hiba történik, értesítjük a felhasználót.
-                    System.Console.WriteLine("A fájl nem kezelhető, mivel nincs megfelelő hozzáférés.");
-                    iohiba = true;
-                }
-                catch (System.ArgumentException)
-                {
-                    // ArgumentException történik, ha a paraméter nem értelmezhető.
-                    // Például "C:\Valami?.txt" esetén, mivel a Windows nem kezeli a "?"-t a fájlnévben.
-                    System.Console.WriteLine("A megadott paraméter nem megfelelő.");
-                    System.Console.WriteLine("Valószínűleg nem használható karaktereket tartalmaz.");
-                    iohiba = true;
-                }
-
-                if (iohiba == true)
-                {
-                    // Ha az iohiba korábban true-ra állt, megjelenítjük a hibát.
-
-                    System.Console.Write("A diákokat tartalmazó fájl ( " + Directory.GetCurrentDirectory() + "\\" + fajl);
+                    System.Console.Write("A diákokat tartalmazó fájl (" + Directory.GetCurrentDirectory() + "\\" + diak_fajl);
                     System.Console.WriteLine(") nem írható.");
                 }
-                else if (iohiba == false)
+                else
                 {
                     // Ha nem történt hiba és a fájl írható, akkor beleírjuk a diákokat.
 
@@ -359,8 +456,22 @@ namespace ClassStatistics
 
             if (wrDiak == true)
             {
-                resHandle = new FileStream(resFajl, FileMode.Create, FileAccess.ReadWrite);
-                strResult = new StreamWriter(resHandle);
+                resHandle = createStream(resFajl, FileMode.Create, FileAccess.Write, true);
+
+                if (resHandle == null)
+                {
+                    // Ha hiba történt a fájl létrehozása során, értesítjük a usert.
+                    System.Console.Write("A diákokat tartalmazó fájl (" + Directory.GetCurrentDirectory() + "\\" + resFajl);
+                    System.Console.WriteLine(") nem írható.");
+
+                    // És a wrDiak változót hamisra állítjuk, így nem történik későbbi írás.
+                    wrDiak = false;
+                }
+                else
+                {
+                    // Ha sikerült a kapcsolat kiépítése, akkor létrehozzuk az író adatfolyamot.
+                    strResult = new StreamWriter(resHandle);
+                }
             }
 
             double atlag = System.Convert.ToDouble(jegyOsszeg) / System.Convert.ToDouble(rekord);
