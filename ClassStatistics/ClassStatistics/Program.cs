@@ -287,8 +287,7 @@ namespace ClassStatistics
 
                     // A fejlécbe (első sor) a diákok száma kerül.
                     StreamWriter strWrite = new StreamWriter(handle);
-                    strWrite.Write(System.Convert.ToString(rekord));
-                    strWrite.WriteLine();
+                    strWrite.WriteLine(System.Convert.ToString(rekord));
 
                     // Kiürítjük (a merevlemezre írjuk) a memóriában található buffert.
                     strWrite.Flush();
@@ -313,8 +312,9 @@ namespace ClassStatistics
                         strWrite.Flush();
                     }
 
-                    // Lezárjuk a kapcsolatot.
+                    // Lezárjuk a jelenlegi írási kapcsolatot.
                     strWrite.Close();
+                    handle.Close();
                 }
             }
 
@@ -351,14 +351,40 @@ namespace ClassStatistics
 
             System.Console.WriteLine();
 
+            // Ha az adatok kiírását kértük, készítünk egy
+            // újabb FileStream és StreamWriter objektumot.
+            string resFajl = "eredmeny.txt";
+            FileStream resHandle = null;
+            StreamWriter strResult = null;
+
+            if (wrDiak == true)
+            {
+                resHandle = new FileStream(resFajl, FileMode.Create, FileAccess.ReadWrite);
+                strResult = new StreamWriter(resHandle);
+            }
+
             double atlag = System.Convert.ToDouble(jegyOsszeg) / System.Convert.ToDouble(rekord);
             System.Console.WriteLine("A tanulók érdemjegyeinek átlaga: " + System.Convert.ToString(atlag));
+            
+            // Ha az eredmények kiírását kértük, akkor elsőnek beírjuk az átlagot.
+            if ( wrDiak == true )
+            {
+                strResult.WriteLine("A tanulók érdemjegyeinek átlaga: " + System.Convert.ToString(atlag));
+                strResult.Flush();
+            }
 
             // Ha vannak bukott diákok, megjelenítjük az adataikat, újbóli iterációval.
             if (bukas)
             {
                 System.Console.WriteLine();
                 System.Console.WriteLine("Megbuktak matematikából (" + System.Convert.ToString(bukott_szam) + " diák):");
+
+                if ( wrDiak == true )
+                {
+                    strResult.WriteLine();
+                    strResult.WriteLine("Megbuktak matematikából (" + System.Convert.ToString(bukott_szam) + " diák):");
+                    strResult.Flush();
+                }
 
                 foreach (Student bukott in bukottak)
                 {
@@ -370,6 +396,16 @@ namespace ClassStatistics
                         System.Console.Write(" (" + System.Convert.ToString(bukott.ev) + ". ");
                         System.Console.Write(System.Convert.ToString(bukott.honap) + ". ");
                         System.Console.WriteLine(System.Convert.ToString(bukott.nap) + ".)");
+
+                        // A bukott diákokat is beleírjuk az eredmények fájlba.
+                        if ( wrDiak == true ) 
+                        {
+                            strResult.Write(System.Convert.ToString(bukott.id + 1) + ". " + bukott.nev);
+                            strResult.Write(" (" + System.Convert.ToString(bukott.ev) + ". ");
+                            strResult.Write(System.Convert.ToString(bukott.honap) + ". ");
+                            strResult.WriteLine(System.Convert.ToString(bukott.nap) + ".)");
+                            strResult.Flush();
+                        }
                     }
                 }
             }
@@ -381,6 +417,13 @@ namespace ClassStatistics
                 System.Console.WriteLine();
                 System.Console.WriteLine("Kitűnő eredményt értek el (" + System.Convert.ToString(kituno_szam) + " diák):");
 
+                if (wrDiak == true)
+                {
+                    strResult.WriteLine();
+                    strResult.WriteLine("Kitűnő eredményt értek el (" + System.Convert.ToString(kituno_szam) + " diák):");
+                    strResult.Flush();
+                }
+
                 foreach (Student kituno_diak in kitunok)
                 {
                     if (kituno_diak != null)
@@ -389,10 +432,26 @@ namespace ClassStatistics
                         System.Console.Write(" (" + System.Convert.ToString(kituno_diak.ev) + ". ");
                         System.Console.Write(System.Convert.ToString(kituno_diak.honap) + ". ");
                         System.Console.WriteLine(System.Convert.ToString(kituno_diak.nap) + ".)");
+
+                        if (wrDiak == true)
+                        {
+                            strResult.Write(System.Convert.ToString(kituno_diak.id + 1) + ". " + kituno_diak.nev);
+                            strResult.Write(" (" + System.Convert.ToString(kituno_diak.ev) + ". ");
+                            strResult.Write(System.Convert.ToString(kituno_diak.honap) + ". ");
+                            strResult.WriteLine(System.Convert.ToString(kituno_diak.nap) + ".)");
+                            strResult.Flush();
+                        }
                     }
                 }
             }
-            
+
+            // Lezárjuk a kapcsolatot az eredmények fájllal.
+            if (wrDiak == true)
+            {
+                strResult.Close();
+                resHandle.Close();
+            }
+
             // Várunk egy billentyűleütésre a program befejezése előtt.
             System.Console.WriteLine();
             System.Console.Write("A kilépéshéz nyomjon ENTER-t.");
