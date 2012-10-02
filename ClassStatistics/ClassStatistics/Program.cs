@@ -199,19 +199,24 @@ namespace ClassStatistics
 
             foreach (Student diak in diakok)
             {
+                // Hozzáadjuk a jegyek összegéhez a jelenlegi matematika jegyet.
                 jegyOsszeg += System.Convert.ToInt32(diak.matekjegy);
+
+                // Ha a diák kitűnő, vagy bukott tanuló, beállítjuk
+                // a logikai változót, hogy létezik kitűnő/bukott diák
+                // és a kitűnőket/bukottakat tároló tömbbe beírjuk a diákot.
 
                 if ( diak.matekjegy == 1 )
                 {
                     bukas = true;
-                    bukott_szam++;
                     bukottak[bukott_szam] = diak;
+                    bukott_szam++;
                 }
                 else if ( diak.matekjegy == 5 )
                 {
                     kituno = true;
-                    kituno_szam++;
                     kitunok[kituno_szam] = diak;
+                    kituno_szam++;
                 }
             }
 
