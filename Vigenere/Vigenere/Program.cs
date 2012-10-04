@@ -17,6 +17,10 @@ namespace Vigenere
     {
         static void Main(string[] args)
         {
+            // BELÉPÉSI PONT
+            // Beállítjuk a konzolablak címét.
+            System.Console.Title = "Vigenére";
+            
             /* Első lépésként betöltjük a 'Vtabla.dat' fájlt
              * amely egy kódtábla a feladat megoldásához.
              */
@@ -73,8 +77,48 @@ namespace Vigenere
                 }
             }
 
-            
+            /* MÁSODIK RÉSZFELADAT
+             * -------------------
+             * Alakítsa át a nyílt szöveget, hogy a későbbi kódolás feltételeinek megfeleljen!
+             * 
+             * A kódolás feltételei:
+             * A magyar ékezetes karakterek helyett ékezetmenteseket kell használni.
+             * (Például á helyett a; ő helyett o stb.)
+             * A nyílt szövegben az átalakítás után csak az angol ábécé betűi szerepelhetnek.
+             * A nyílt szöveg az átalakítás után legyen csupa nagybetűs.
+             */
 
+            // Első részben nagybetűssé alakítjuk a szöveget.
+            // (Így később nem kell külön átalakítani a kis 'á' és nagy 'Á' betűket.)
+            nyilt_szoveg = nyilt_szoveg.ToUpperInvariant();
+
+            // Kivágjuk az összes írásjelet és számot.
+            char[] irasjelek = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ', '!', '?', '@', '.', ',', '\'', '"' };
+            foreach (char irasjel in irasjelek)
+            {
+                nyilt_szoveg = nyilt_szoveg.Replace(System.Convert.ToString(irasjel), "");
+            }
+
+            // Az összes magyar ékezetes betűt átalakítjuk az ékezet nélküli párjára.
+            nyilt_szoveg = nyilt_szoveg.Replace("Á", "A");
+            nyilt_szoveg = nyilt_szoveg.Replace("É", "E");
+            nyilt_szoveg = nyilt_szoveg.Replace("Í", "I");
+            nyilt_szoveg = nyilt_szoveg.Replace("Ó", "O");
+            nyilt_szoveg = nyilt_szoveg.Replace("Ö", "O");
+            nyilt_szoveg = nyilt_szoveg.Replace("Ő", "O");
+            nyilt_szoveg = nyilt_szoveg.Replace("Ú", "U");
+            nyilt_szoveg = nyilt_szoveg.Replace("Ü", "U");
+            nyilt_szoveg = nyilt_szoveg.Replace("Ű", "U");
+            
+            /* HARMADIK RÉSZFELADAT
+             * --------------------
+             * Írja ki a képernyőre az átalakított nyílt szöveget!
+             */
+
+            System.Console.WriteLine("\nA szöveg át lett alakítva a feladatnak megfelelő formátumba:");
+            System.Console.WriteLine(nyilt_szoveg);
+
+            // KILÉPÉSI PONT
             // Várunk egy billentyűleütést a kilépés előtt.
             System.Console.WriteLine("\nA kilépéshez nyomjon ENTER-t...");
             System.Console.ReadLine();
