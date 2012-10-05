@@ -146,6 +146,26 @@ namespace Vigenere
             // Mivel a feladat megtiltja az ellenőrzést,
             // ezért elhisszük, hogy a user jól írta be.
 
+            // Nagybetűssé alakítjuk a szöveget.
+            kulcsszo = kulcsszo.ToUpperInvariant();
+
+            /* ÖTÖDIK RÉSZFELADAT
+             * ------------------
+             * A kódolás első lépéseként fűzze össze a kulcsszót
+             * egymás után annyiszor, hogy az így kapott karaktersorozat
+             * (továbbiakban kulcsszöveg) hossza legyen egyenlő a kódolandó
+             * szöveg hosszával! Írja ki a képernyőre az így kapott kulcsszöveget!
+             */
+            string kulcsszoveg = null;
+            
+            for (int i = 0; i < nyilt_szoveg.Length; i++)
+			{
+                kulcsszoveg += kulcsszo[i % kulcsszo.Length];
+			}
+
+            System.Console.WriteLine();
+            System.Console.WriteLine("A kulcsszóból a következő kulcsszöveg lett generálva:");
+            System.Console.WriteLine(kulcsszoveg);
             
             // Várunk egy billentyűleütést a kilépés előtt.
             System.Console.WriteLine("\nA kilépéshez nyomjon ENTER-t...");
