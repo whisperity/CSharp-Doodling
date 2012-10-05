@@ -167,6 +167,43 @@ namespace Vigenere
             System.Console.WriteLine("A kulcsszóból a következő kulcsszöveg lett generálva:");
             System.Console.WriteLine(kulcsszoveg);
             
+            /* HATODIK RÉSZFELADAT
+             * -------------------
+             * A kódolás második lépéseként a következőket hajtsa végre!
+             * Vegye az átalakított nyílt szöveg első karakterét,
+             * és keresse meg a vtabla.dat fájlból beolvasott táblázat első oszlopában!
+             * 
+             * Ezután vegye a kulcsszöveg első karakterét,
+             * és keresse meg a táblázat első sorában!
+             * Az így kiválasztott sor és oszlop metszéspontjában
+             * lévő karakter lesz a kódolt szöveg első karaktere.
+             * 
+             * Ezt ismételje a kódolandó szöveg többi karakterével is!
+             */
+            StreamReader vtabla_olvaso = null;
+
+            // Első körben beolvassuk a sorok számát a fájlból.
+            int vt_sorok = 0;    
+            vtabla_olvaso = new StreamReader(vtabla_dat);
+            while (vtabla_olvaso.ReadLine() != null)
+            {
+                vt_sorok++;
+            }
+            vtabla_olvaso.Close();
+            
+            // Majd beolvassuk az oszlopok számát (az első sorból).
+
+            // Itt nem szükséges újból hibát kezelünk a fájlhoz,
+            // feltételezzük, hogy az még mindig létezik.
+            vtabla_dat = new FileStream(vtabla_eleresiut, FileMode.Open, FileAccess.Read);
+            vtabla_olvaso = new StreamReader(vtabla_dat);
+            string sor = vtabla_olvaso.ReadLine();
+            int vt_oszlopok = sor.Length;
+            vtabla_olvaso.Close();
+
+            // Felépítünk egy karaktermátrixot a fájlból.
+            char[,] vtabla = new char[vt_oszlopok, vt_sorok];
+
             // Várunk egy billentyűleütést a kilépés előtt.
             System.Console.WriteLine("\nA kilépéshez nyomjon ENTER-t...");
             System.Console.ReadLine();
