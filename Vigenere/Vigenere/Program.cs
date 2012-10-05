@@ -9,6 +9,16 @@ using System.Text;
  * (a PDF fájlban, a 10. oldaltól)
  */
 
+/* A projekt sikeres futtatásához tartozik egy Vtabla.dat
+ * fájl, egy ún. Vigenére tábla, amely egy titkosítási eszköz.
+ * A fájl első sorai alább olvashatóak:
+ * 
+ * ABCDEFGHIJKLMNOPQRSTUVWXYZ
+ * BCDEFGHIJKLMNOPQRSTUVWXYZA
+ * stb.
+ */
+
+
 // GLOBAL TODO: További dokumentáció mutogatási célokból.
 
 namespace Vigenere
@@ -17,14 +27,14 @@ namespace Vigenere
     {
         static void Main(string[] args)
         {
-            // BELÉPÉSI PONT
             // Beállítjuk a konzolablak címét.
-            System.Console.Title = "Vigenére";
+            System.Console.Title = "Vigenére tábla";
             
-            /* Első lépésként betöltjük a 'Vtabla.dat' fájlt
+            /* (NULLADIK RÉSZFELADAT)
+             * ----------------------
+             * Első lépésként betöltjük a 'Vtabla.dat' fájlt
              * amely egy kódtábla a feladat megoldásához.
              */
-
             FileStream vtabla_dat = null;
             string vtabla_eleresiut = "vtabla.dat";
 
@@ -64,6 +74,9 @@ namespace Vigenere
             string nyilt_szoveg = null;
             bool nyilt_szoveg_hiba = true;
 
+            // A nyilt_szoveg_hiba addig marad igaz, amíg a beírt érték
+            // megfelel a feltételeknek.
+            // Ha nem, akkor a ciklus újra lefut, és új érték kerül bekérésre.
             while (nyilt_szoveg_hiba)
             {
                 System.Console.Write("> ");
@@ -87,7 +100,6 @@ namespace Vigenere
              * A nyílt szövegben az átalakítás után csak az angol ábécé betűi szerepelhetnek.
              * A nyílt szöveg az átalakítás után legyen csupa nagybetűs.
              */
-
             // Első részben nagybetűssé alakítjuk a szöveget.
             // (Így később nem kell külön átalakítani a kis 'á' és nagy 'Á' betűket.)
             nyilt_szoveg = nyilt_szoveg.ToUpperInvariant();
@@ -114,11 +126,27 @@ namespace Vigenere
              * --------------------
              * Írja ki a képernyőre az átalakított nyílt szöveget!
              */
-
-            System.Console.WriteLine("\nA szöveg át lett alakítva a feladatnak megfelelő formátumba:");
+            System.Console.WriteLine();
+            System.Console.WriteLine("A szöveg át lett alakítva a feladatnak megfelelő formátumba:");
             System.Console.WriteLine(nyilt_szoveg);
 
-            // KILÉPÉSI PONT
+            /* NEGYEDIK RÉSZFELADAT
+             * --------------------
+             * Kérjen be a felhasználótól egy maximum 5 karakteres, nem üres kulcsszót!
+             * A kulcsszó a kódolás feltételeinek megfelelő legyen!
+             * (Sem átalakítás, sem ellenőrzés nem kell!)
+             * Alakítsa át a kulcsszót csupa nagybetűssé!
+             */
+            // Bekérjük a megadott kulcsszót.
+            System.Console.WriteLine();
+            System.Console.WriteLine("Kérek egy max. 5 karakteres kulcsszót.");
+            System.Console.WriteLine("FIGYELEM! A kulcsszó csak nem ékezetes, az angol ABC-ből ismert karaktereket tartalmazhat!");
+            System.Console.Write("> ");
+            string kulcsszo = System.Console.ReadLine();
+            // Mivel a feladat megtiltja az ellenőrzést,
+            // ezért elhisszük, hogy a user jól írta be.
+
+            
             // Várunk egy billentyűleütést a kilépés előtt.
             System.Console.WriteLine("\nA kilépéshez nyomjon ENTER-t...");
             System.Console.ReadLine();
