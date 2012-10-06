@@ -18,8 +18,20 @@ using System.Text;
  * stb.
  */
 
-
-// GLOBAL TODO: További dokumentáció mutogatási célokból.
+/*
+ * Feladat szerinti példa kimenet
+ * ------------------------------
+ * Példa:
+ * Nyílt szöveg: Ez a próba szöveg, amit kódolunk!
+ * Szöveg átalakítása: EZAPROBASZOVEGAMITKODOLUNK
+ * Kulcsszó: auto
+ * Kulcsszó nagybetűssé alakítása: AUTO
+ * Nyílt szöveg és kulcsszöveg együtt:
+ * E Z A P R O B A S Z O V E G A M I T K O D O L U N K
+ * A U T O A U T O A U T O A U T O A U T O A U T O A U
+ * Kódolt szöveg:
+ * E T T D R I U O S T H J E A T A I N D C D I E I N E
+ */
 
 namespace Vigenere
 {
@@ -36,30 +48,31 @@ namespace Vigenere
              * amely egy kódtábla a feladat megoldásához.
              */
             FileStream vtabla_dat = null;
-            string vtabla_eleresiut = "vtabla.dat";
-
-            /* TODO: Hibakezelés, ha a vtabla.dat nem található.
-            if (!System.IO.File.Exists(vtabla_eleresiut))
-            {
-                System.Console.Write("A vtabla.dat fájl nem található a megadott helyen (");
-                System.Console.WriteLine(System.IO.Directory.GetCurrentDirectory() + ")");
-                System.Console.WriteLine("Kérem adja meg a vtabla.dat fájl elérési útvonalát!");
-
-            }
-            */
-
             try
             {
-                vtabla_dat = new FileStream(vtabla_eleresiut, FileMode.Open, FileAccess.Read);
+                // Megpróbáljuk létrehozni a vtabla.dat fájlhoz való olvasási kapcsolatot.
+                vtabla_dat = new FileStream("vtabla.dat", FileMode.Open, FileAccess.Read);
             }
             catch (System.IO.IOException ioex)
             {
+                // Ha bármilyen hiba történik (a fájl nem elérhető, nincs jog olvasni)
+                // erről értesítjük a felhasználót.
                 System.Console.WriteLine("Hiba történt a fájl megnyitása során:");
                 System.Console.WriteLine(ioex.Message);
                 System.Console.WriteLine();
 
+                // Majd megszakítjuk a program futtatását.
+                // A vtabla.dat nélkül a feladat nem futtatható.
+                System.Console.WriteLine("Ha a fájl nem olvasható, a programot nem lehet futtatni.");
                 System.Console.WriteLine("A kilépéshez nyomjon ENTER-t...");
                 System.Console.ReadLine();
+
+                // 1-es visszatérési értékkel kilépünk a programból,
+                // jelezve, hogy valami hiba történt (az érték nem 0).
+                // 
+                // Ez a visszatérési érték lehetőség jól jön
+                // más, ezt a programot meghívó programok számára.
+                // (Jelen esetben csak bemutató célzattal áll it.) 
                 Environment.Exit(1);
             }
 
@@ -157,7 +170,6 @@ namespace Vigenere
              * szöveg hosszával! Írja ki a képernyőre az így kapott kulcsszöveget!
              */
             string kulcsszoveg = null;
-            
             for (int i = 0; i < nyilt_szoveg.Length; i++)
 			{
                 kulcsszoveg += kulcsszo[i % kulcsszo.Length];
@@ -166,7 +178,12 @@ namespace Vigenere
             System.Console.WriteLine();
             System.Console.WriteLine("A kulcsszóból a következő kulcsszöveg lett generálva:");
             System.Console.WriteLine(kulcsszoveg);
-            
+
+            System.Console.WriteLine();
+            System.Console.WriteLine("A nyílt szöveg és a kulcsszöveg együtt:");
+            System.Console.WriteLine(nyilt_szoveg);
+            System.Console.WriteLine(kulcsszoveg);
+
             /* HATODIK RÉSZFELADAT
              * -------------------
              * A kódolás második lépéseként a következőket hajtsa végre!
@@ -183,7 +200,7 @@ namespace Vigenere
             StreamReader vtabla_olvaso = null;
 
             // Első körben beolvassuk a sorok számát a fájlból.
-            int vt_sorok = 0;    
+            int vt_sorok = 0;
             vtabla_olvaso = new StreamReader(vtabla_dat);
             while (vtabla_olvaso.ReadLine() != null)
             {
@@ -192,10 +209,9 @@ namespace Vigenere
             vtabla_olvaso.Close();
             
             // Majd beolvassuk az oszlopok számát (az első sorból).
-
             // Itt nem szükséges újból hibát kezelünk a fájlhoz,
             // feltételezzük, hogy az még mindig létezik.
-            vtabla_dat = new FileStream(vtabla_eleresiut, FileMode.Open, FileAccess.Read);
+            vtabla_dat = new FileStream("vtabla.dat", FileMode.Open, FileAccess.Read);
             vtabla_olvaso = new StreamReader(vtabla_dat);
             string sor = vtabla_olvaso.ReadLine();
             int vt_oszlopok = sor.Length;
@@ -203,10 +219,101 @@ namespace Vigenere
 
             // Felépítünk egy karaktermátrixot a fájlból.
             char[,] vtabla = new char[vt_oszlopok, vt_sorok];
+            vtabla_dat = new FileStream("vtabla.dat", FileMode.Open, FileAccess.Read);
+            vtabla_olvaso = new StreamReader(vtabla_dat);
+
+            // A külső for ciklus a sorokat fogja olvasni.
+            for (int i = 0; i < vt_sorok; i++)
+            {
+                // Elsőként beolvassuk az aktuális sort a fájlból.
+                string aktualis_sor = vtabla_olvaso.ReadLine();
+
+                // A belső for ciklus pedig az oszlopokat fogja feltölteni.
+                for (int j = 0; j < vt_oszlopok; j++)
+                {
+                    vtabla[i, j] = System.Convert.ToChar(aktualis_sor[j]);
+                }
+            }
+            vtabla_olvaso.Close();
+            
+            // Kívülre kimentjük a vtabla első sorát és
+            // oszlopát, amely később a keresési alap lesz.
+            char[] elso_sor = new char[vtabla.GetLength(0)];
+            char[] elso_oszlop = new char[vtabla.GetLength(1)];
+            for (int i = 0; i < vtabla.GetLength(0); i++)
+            {
+                elso_sor[i] = vtabla[0, i];
+                elso_oszlop[i] = vtabla[i, 0];
+            }
+
+            // Majd iteráljuk (egyesével bejárjuk) a beírt nyílt szöveget.
+            string kodolt_szoveg = "";
+            for (int i = 0; i < nyilt_szoveg.Length; i++)
+            {
+                // Vesszük a nyílt szöveg és a kulcsszöveg i. karakterét
+                // majd ezt oszlopként és sorként keresve "kimetsszük" a kódolt karaktert.
+                int karakter_oszlop = Array.IndexOf(elso_oszlop, System.Convert.ToChar(nyilt_szoveg[i]));
+                int karakter_sor = Array.IndexOf(elso_sor, System.Convert.ToChar(kulcsszoveg[i]));
+                
+                // A kodolt_szoveg-hez hozzáírjuk a kapott karaktert a metszéspontból.
+                kodolt_szoveg += System.Convert.ToString(vtabla[karakter_sor, karakter_oszlop]);
+            }
+
+            /* HETEDIK RÉSZFELADAT
+             * -------------------
+             * Írja ki a képernyőre és a kodolt.dat fájlba a kapott kódolt szöveget!
+             */
+            System.Console.WriteLine();
+            System.Console.WriteLine("A kódolt szöveg:");
+            System.Console.WriteLine(kodolt_szoveg);
+
+            // Megtörténik a fájlba írás.
+            FileStream kodolt_dat = null;
+            bool kodolt_dat_irhato = false;
+            try
+            {
+                // Megpróbáljuk felépíteni a kapcsolatot írási módba.
+                // A korábbi fájl automatikusan felülíródik (ha van hozzáférés).
+                kodolt_dat = new FileStream("kodolt.dat", FileMode.Create, FileAccess.Write);
+
+                // Feltételezzük, hogy a kapcsolat létrejött,
+                // így a logikai változó értékét igazra állítjuk.
+                kodolt_dat_irhato = true;
+            }
+            catch (System.IO.IOException ioex)
+            {
+                // Ha hiba történik, értesítjük a felhasználót.
+                System.Console.WriteLine("Hiba történt a fájl megnyitása során:");
+                System.Console.WriteLine(ioex.Message);
+                System.Console.WriteLine();
+
+                // Mivel a kapcsolat mégsem jöhetett létre,
+                // a logikai változót "visszakapcsoljuk" hamis értékre.
+                kodolt_dat_irhato = false;
+            }
+
+            if (kodolt_dat_irhato == true)
+            {
+                // Ha írható a fájl (korábban igazra állt a változó),
+                // akkor megírjuk a feladatnak megfelelően.
+                StreamWriter kodolt_writer = new StreamWriter(kodolt_dat);
+                kodolt_writer.WriteLine(kodolt_szoveg);
+                kodolt_writer.Flush();
+                kodolt_writer.Close();
+            }
+            else if (kodolt_dat_irhato == false)
+            {
+                // Ha nem sikerült a kapcsolatot kiépíteni, csak
+                // értesítjük a felhasználót a sikertelenségről.
+                System.Console.WriteLine("A kódolt szöveg fájlba írása nem történt meg.");
+            }
 
             // Várunk egy billentyűleütést a kilépés előtt.
+            System.Console.WriteLine();
             System.Console.WriteLine("\nA kilépéshez nyomjon ENTER-t...");
             System.Console.ReadLine();
+
+            // 0 (minden OK) visszatéréssi értékkel kilépünk a programból.
             Environment.Exit(0);
         }
     }
