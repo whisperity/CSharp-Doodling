@@ -1,7 +1,6 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
+﻿Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C# Express 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hanyados", "ConsoleApplication1\Hanyados.csproj", "{C15857A7-08AB-4C27-B209-AA8E4DD09182}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hanyados", "Hanyados\Hanyados.csproj", "{C15857A7-08AB-4C27-B209-AA8E4DD09182}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
