@@ -26,7 +26,21 @@ namespace Helyjegy
              * azok felhasználásával oldja meg a következő feladatokat!
              */
             // Létrehozzuk a fájlt olvasó objektumokat.
-            FileStream eladott_txt = new FileStream("eladott.txt", FileMode.Open, FileAccess.Read);
+            FileStream eladott_txt = null;
+            // Ha a fájl nem található, megjelenítünk egy hibaüzenetet és kilépünk a programból.
+            try
+            {
+                eladott_txt = new FileStream("eladott.txt", FileMode.Open, FileAccess.Read);
+            }
+            catch (System.IO.IOException)
+            {
+                System.Console.WriteLine("Nem sikerült az eladott.txt megnyitása.");
+                System.Console.WriteLine("Kérem ellenőrizze, hogy a forrásfájl a futtatható állománnyal egy mappában van-e!");
+                System.Console.WriteLine("A kilépéshez nyomjon ENTER-t...");
+                System.Console.ReadLine();
+                Environment.Exit(1);
+            }
+            
             StreamReader txt = new StreamReader(eladott_txt);
 
             // Beolvassuk az első sort, majd a feladatnak megfelelően feldolgozzuk.
