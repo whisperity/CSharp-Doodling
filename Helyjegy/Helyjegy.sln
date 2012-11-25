@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C# Express 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helyjegy", "Helyjegy\Helyjegy.csproj", "{7046CC3A-0BEF-4F0B-87CB-BDF4BB19884B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helyjegy", "Helyjegy.csproj", "{7046CC3A-0BEF-4F0B-87CB-BDF4BB19884B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

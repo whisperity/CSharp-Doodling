@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C# Express 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lift", "Lift\Lift.csproj", "{CE9C1F27-CAE5-4B4F-85FF-EBB6D69C049B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lift", "Lift.csproj", "{CE9C1F27-CAE5-4B4F-85FF-EBB6D69C049B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
