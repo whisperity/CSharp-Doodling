@@ -93,8 +93,47 @@ namespace Lift
             System.Console.WriteLine(System.Convert.ToString(maximum) + ". szintek között mozgott.");
 
             // ÖTÖDIK RÉSZFELADAT
+            int felfele_utas = 0;
+            int felfele_utas_nelkul = 0;
+            for (int l = 0; l < igenyek.GetUpperBound(0); l++)
+            {
+                if (igenyek[l].honnan < igenyek[l].hova)
+                {
+                    felfele_utas++;
+                }
+
+                if (igenyek[l].hova < igenyek[l + 1].honnan)
+                {
+                    felfele_utas_nelkul++;
+                }
+            }
+
+            System.Console.Write("5. feladat: A lift ennyiszer indult felfelé, utassal: ");
+            System.Console.Write(System.Convert.ToString(felfele_utas) + ", utas nélkül: ");
+            System.Console.WriteLine(System.Convert.ToString(felfele_utas_nelkul) + ".");
+
+            // HATODIK RÉSZFELADAT
+            List<int> csapatok_lista = new List<int>(csapatok);
+            for (int m = 1; m <= csapatok; m++)
+            {
+                csapatok_lista.Add(m);
+            }
+
+            for (int n = 0; n < igenyek.GetUpperBound(0); n++)
+            {
+                csapatok_lista.Remove(igenyek[n].csapat);
+            }
+
+            csapatok_lista.Sort();
+            System.Console.Write("6. feladat: A következő csapatok nem használták a liftet: ");
+            foreach (int nem_utazott_csapat_id in csapatok_lista.ToArray())
+            {
+                System.Console.Write(System.Convert.ToString(nem_utazott_csapat_id) + ' ');
+            }
+            System.Console.WriteLine();
 
 
+            
             System.Console.ReadLine();
         }
     }
