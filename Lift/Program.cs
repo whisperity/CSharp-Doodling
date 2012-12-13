@@ -53,20 +53,23 @@ namespace Lift
                 igenyek[i].honnan = System.Convert.ToInt16(elemek[4]);
                 igenyek[i].hova = System.Convert.ToInt16(elemek[5]);
             }
-            
+
+            txt.Close();
+            igeny_txt.Close();
+
             // MÁSODIK RÉSZFELADAT
             System.Console.Write("2. feladat: Melyik szinten áll a lift az induláskor? ");
             short lift_kezdopont = System.Convert.ToInt16(System.Console.ReadLine());
-            
+
             // HARMADIK RÉSZFELADAT
             System.Console.Write("3. feladat: A lift az utolsó igény teljesítése után a(z) ");
             System.Console.WriteLine(igenyek[igenyek.GetUpperBound(0)].hova + ". emeleten áll meg.");
 
             // NEGYEDIK RÉSZFELADAT
-            int[] emelet_lista = new int[(int)igenyek.GetUpperBound(0) * 2];
+            int[] emelet_lista = new int[(int)igenyek.Length * 2];
             int j = 0;
             int em_i = 0;
-            while (j < igenyek.GetUpperBound(0))
+            while (j < igenyek.Length)
             {
                 emelet_lista[em_i] = igenyek[j].honnan;
                 emelet_lista[++em_i] = igenyek[j].hova;
@@ -77,14 +80,14 @@ namespace Lift
             int maximum = emelet_lista[0];
             int minimum = emelet_lista[0];
 
-            for (int k = 0; k < emelet_lista.GetUpperBound(0); k++)
+            for (int k = 0; k < emelet_lista.Length; k++)
             {
-                if ( emelet_lista[k] > maximum )
+                if (emelet_lista[k] > maximum)
                 {
                     maximum = emelet_lista[k];
                 }
 
-                if ( emelet_lista[k] < minimum )
+                if (emelet_lista[k] < minimum)
                 {
                     minimum = emelet_lista[k];
                 }
@@ -95,7 +98,7 @@ namespace Lift
             // ÖTÖDIK RÉSZFELADAT
             int felfele_utas = 0;
             int felfele_utas_nelkul = 0;
-            for (int l = 0; l < igenyek.GetUpperBound(0); l++)
+            for (int l = 0; l < igenyek.Length - 1; l++)
             {
                 if (igenyek[l].honnan < igenyek[l].hova)
                 {
@@ -108,7 +111,7 @@ namespace Lift
                 }
             }
 
-            System.Console.Write("5. feladat: A lift ennyiszer indult felfelé, utassal: ");
+            System.Console.Write("5. feladat: A lift ennyiszer indult felfelé: utassal: ");
             System.Console.Write(System.Convert.ToString(felfele_utas) + ", utas nélkül: ");
             System.Console.WriteLine(System.Convert.ToString(felfele_utas_nelkul) + ".");
 
@@ -119,7 +122,7 @@ namespace Lift
                 csapatok_lista.Add(m);
             }
 
-            for (int n = 0; n < igenyek.GetUpperBound(0); n++)
+            for (int n = 0; n < igenyek.Length; n++)
             {
                 csapatok_lista.Remove(igenyek[n].csapat);
             }
@@ -133,8 +136,9 @@ namespace Lift
             System.Console.WriteLine();
 
 
-            
+            System.Console.WriteLine("A kilépéshez nyomjon ENTER-t...");
             System.Console.ReadLine();
+            Environment.Exit(0);
         }
     }
 }
