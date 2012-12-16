@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-//using System.Linq;
 using System.Text;
 
 namespace Lift
@@ -20,7 +19,6 @@ namespace Lift
 
         static void Main(string[] args)
         {
-            // ELSŐ RÉSZFELADAT
             FileStream igeny_txt = null;
             try
             {
@@ -57,15 +55,12 @@ namespace Lift
             txt.Close();
             igeny_txt.Close();
 
-            // MÁSODIK RÉSZFELADAT
             System.Console.Write("2. feladat: Melyik szinten áll a lift az induláskor? ");
             short lift_kezdopont = System.Convert.ToInt16(System.Console.ReadLine());
 
-            // HARMADIK RÉSZFELADAT
             System.Console.Write("3. feladat: A lift az utolsó igény teljesítése után a(z) ");
             System.Console.WriteLine(igenyek[igenyek.GetUpperBound(0)].hova + ". emeleten áll meg.");
 
-            // NEGYEDIK RÉSZFELADAT
             int[] emelet_lista = new int[(int)igenyek.Length * 2];
             int j = 0;
             int em_i = 0;
@@ -95,7 +90,6 @@ namespace Lift
             System.Console.Write("4. feladat: A lift a(z) " + System.Convert.ToString(minimum) + ". és a(z) ");
             System.Console.WriteLine(System.Convert.ToString(maximum) + ". szintek között mozgott.");
 
-            // ÖTÖDIK RÉSZFELADAT
             int felfele_utas = 0;
             int felfele_utas_nelkul = 0;
             for (int l = 0; l < igenyek.Length - 1; l++)
@@ -115,7 +109,6 @@ namespace Lift
             System.Console.Write(System.Convert.ToString(felfele_utas) + ", utas nélkül: ");
             System.Console.WriteLine(System.Convert.ToString(felfele_utas_nelkul) + ".");
 
-            // HATODIK RÉSZFELADAT
             List<int> csapatok_lista = new List<int>(csapatok);
             for (int m = 1; m <= csapatok; m++)
             {
@@ -135,10 +128,19 @@ namespace Lift
             }
             System.Console.WriteLine();
 
-            // HETEDIK RÉSZFELADAT
             Random veletlen_generator = new Random();
-            int vizsgalt_csapat = veletlen_generator.Next(1, csapatok);
+            int vizsgalt_csapat = 0;
 
+            bool csapat_letezik = false;
+            while (!csapat_letezik)
+            {
+                vizsgalt_csapat = veletlen_generator.Next(1, csapatok);
+                if (!csapatok_lista.Contains(vizsgalt_csapat))
+                {
+                    csapat_letezik = true;
+                }
+            }
+            
             System.Console.WriteLine("7. feladat: A következő csapatot vizsgáljuk: " + System.Convert.ToString(vizsgalt_csapat) + ".");
 
             List<igeny> vizsgalt_csapat_utjai = new List<igeny>(igenyek.Length);
@@ -150,163 +152,146 @@ namespace Lift
                 }
             }
 
-            if (vizsgalt_csapat_utjai.Count == 0)
+            bool volt_szabalytalansag = false;
+            int szabalytalan_honnan = -1;
+            int szabalytalan_hova = -1;
+
+            for (int p = 1; p < vizsgalt_csapat_utjai.Count; p++)
             {
-                System.Console.WriteLine("Az adott csapat nem vette igénybe a liftet.");
+                if (vizsgalt_csapat_utjai[p].honnan != vizsgalt_csapat_utjai[p-1].hova)
+                {
+                    volt_szabalytalansag = true;
+
+                    szabalytalan_honnan = vizsgalt_csapat_utjai[p-1].hova;
+                    szabalytalan_hova = vizsgalt_csapat_utjai[p].honnan;
+                }
+            }
+
+            if (volt_szabalytalansag == true)
+            {
+                System.Console.WriteLine("Történt szabálytalanság.");
+                System.Console.Write("A vizsgált csapat a következő két szint között gyalog közlekedett: ");
+                System.Console.WriteLine(System.Convert.ToString(szabalytalan_honnan) + ". és " + System.Convert.ToString(szabalytalan_hova) + ".");
             }
             else
             {
-                int aktualis_utolso_szint = vizsgalt_csapat_utjai[0].hova;
-                bool volt_szabalytalansag = false;
-                int szabalytalan_honnan = -1;
-                int szabalytalan_hova = -1;
-
-                for (int p = 1; p < vizsgalt_csapat_utjai.Count; p++)
-                {
-                    if (vizsgalt_csapat_utjai[p].honnan != aktualis_utolso_szint)
-                    {
-                        volt_szabalytalansag = true;
-
-                        szabalytalan_honnan = aktualis_utolso_szint;
-                        szabalytalan_hova = vizsgalt_csapat_utjai[p].honnan;
-                    }
-
-                    aktualis_utolso_szint = vizsgalt_csapat_utjai[p].hova;
-                }
-
-                if (volt_szabalytalansag == true)
-                {
-                    System.Console.WriteLine("Történt szabálytalanság.");
-                    System.Console.Write("A vizsgált csapat a következő két szint között gyalog közlekedett: ");
-                    System.Console.WriteLine(System.Convert.ToString(szabalytalan_honnan) + ". és " + System.Convert.ToString(szabalytalan_hova) + ".");
-                }
-                else
-                {
-                    System.Console.WriteLine("Nem történt szabálytalanság.");
-                }
+                System.Console.WriteLine("Nem történt szabálytalanság.");
             }
 
-            // NYOLCADIK RÉSZFELADAT
-            if (vizsgalt_csapat_utjai.Count == 0)
+            System.Console.WriteLine("8. feladat: Hiba történt a munkák regisztrálása során.");
+            System.Console.WriteLine("Kérem a következő csapat munkaadatait a műszakvizsga feltöltéséhez: " + System.Convert.ToString(vizsgalt_csapat) + "!");
+
+            FileStream blokkol_txt = null;
+            try
             {
-                System.Console.WriteLine("8. feladat: Nem szükséges a munkák regisztrálása, mivel a vizsgált csapat nem vette igénybe a liftet.");
+                blokkol_txt = new FileStream("blokkol.txt", FileMode.Create, FileAccess.Write);
             }
-            else
+            catch (System.IO.IOException)
             {
-                System.Console.WriteLine("8. feladat: Hiba történt a munkák regisztrálása során.");
-                System.Console.WriteLine("Kérem a következő csapat munkaadatait a műszakvizsga feltöltéséhez: " + System.Convert.ToString(vizsgalt_csapat) + "!");
-
-                FileStream blokkol_txt = null;
-                try
-                {
-                    blokkol_txt = new FileStream("blokkol.txt", FileMode.Create, FileAccess.Write);
-                }
-                catch (System.IO.IOException)
-                {
-                    System.Console.WriteLine("Nem sikerült a blokkol.txt létrehozása.");
-                    System.Console.WriteLine("Kérem ellenőrizze, hogy van írási joga a futtatható állományt tartalmazó mappához!");
-                    System.Console.WriteLine("A kilépéshez nyomjon ENTER-t...");
-                    System.Console.ReadLine();
-                    Environment.Exit(1);
-                }
-
-                StreamWriter blokkol_writer = new StreamWriter(blokkol_txt);
-
-                for (int q = 0; q < vizsgalt_csapat_utjai.Count; q++)
-                {
-                    int munkakod = -1;
-                    bool sikeres = false;
-
-                    System.Console.WriteLine("-----");
-                    System.Console.WriteLine("Indulási emelet: " + System.Convert.ToString(vizsgalt_csapat_utjai[q].honnan));
-                    System.Console.WriteLine("Célemelet: " + System.Convert.ToString(vizsgalt_csapat_utjai[q].hova));
-
-                    bool feladatkod_jo = false;
-                    while (!feladatkod_jo)
-                    {
-                        try
-                        {
-
-                            System.Console.Write("Kérem az elvégzett feladat kódját! (1-99) ");
-                            munkakod = System.Convert.ToInt32(System.Console.ReadLine());
-
-                            if (munkakod < 1 || munkakod > 99)
-                            {
-                                throw new System.Exception("A munkakód csak 1 és 99 közötti egész szám lehet.");
-                            }
-
-                            feladatkod_jo = true;
-                        }
-                        catch (System.Exception hiba)
-                        {
-                            System.Console.WriteLine("Hiba történt a munkakód beolvasása során: " + hiba.Message);
-                            feladatkod_jo = false;
-                        }
-                    }
-
-                    System.Console.Write("Befejezés ideje: ");
-                    System.Console.Write(System.Convert.ToString(vizsgalt_csapat_utjai[q].ora) + ":");
-                    System.Console.Write(System.Convert.ToString(vizsgalt_csapat_utjai[q].perc) + ":");
-                    System.Console.WriteLine(System.Convert.ToString(vizsgalt_csapat_utjai[q].masodperc));
-
-                    bool sikeres_jo = false;
-                    string sikeres_bemenet = null;
-                    while (!sikeres_jo)
-                    {
-                        try
-                        {
-
-                            System.Console.Write("Kérem a munka sikerességét! (I/N) ");
-                            sikeres_bemenet = System.Console.ReadLine();
-
-                            if (sikeres_bemenet != "I" && sikeres_bemenet != "i" && sikeres_bemenet != "N" && sikeres_bemenet != "n")
-                            {
-                                throw new System.Exception("Kérem, használja az I (igen) vagy N (nem) a sikeresség jelzéséhez.");
-                            }
-
-                            sikeres_jo = true;
-                        }
-                        catch (System.Exception hiba)
-                        {
-                            System.Console.WriteLine("Hiba történt a sikeresség beolvasása során: " + hiba.Message);
-                            sikeres_jo = false;
-                        }
-                    }
-
-                    if (sikeres_bemenet == "i" || sikeres_bemenet == "I")
-                    {
-                        sikeres = true;
-                    }
-                    else if (sikeres_bemenet == "n" || sikeres_bemenet == "N")
-                    {
-                        sikeres = false;
-                    }
-
-                    blokkol_writer.WriteLine("Indulási emelet: " + System.Convert.ToString(vizsgalt_csapat_utjai[q].honnan));
-                    blokkol_writer.WriteLine("Célemelet: " + System.Convert.ToString(vizsgalt_csapat_utjai[q].hova));
-                    blokkol_writer.WriteLine("Feladatkód: " + System.Convert.ToString(munkakod));
-                    blokkol_writer.Write("Befejezés ideje: ");
-                    blokkol_writer.Write(System.Convert.ToString(vizsgalt_csapat_utjai[q].ora) + ":");
-                    blokkol_writer.Write(System.Convert.ToString(vizsgalt_csapat_utjai[q].perc) + ":");
-                    blokkol_writer.WriteLine(System.Convert.ToString(vizsgalt_csapat_utjai[q].masodperc));
-                    blokkol_writer.Write("Sikeresség: ");
-
-                    if (sikeres == true)
-                    {
-                        blokkol_writer.WriteLine("befejezett");
-                    }
-                    else if (sikeres == false)
-                    {
-                        blokkol_writer.WriteLine("befejezetlen");
-                    }
-
-                    blokkol_writer.WriteLine("-----");
-                }
-
-                blokkol_writer.Close();
-                blokkol_txt.Close();
-                System.Console.WriteLine();
+                System.Console.WriteLine("Nem sikerült a blokkol.txt létrehozása.");
+                System.Console.WriteLine("Kérem ellenőrizze, hogy van írási joga a futtatható állományt tartalmazó mappához!");
+                System.Console.WriteLine("A kilépéshez nyomjon ENTER-t...");
+                System.Console.ReadLine();
+                Environment.Exit(1);
             }
+
+            StreamWriter blokkol_writer = new StreamWriter(blokkol_txt);
+
+            for (int q = 0; q < vizsgalt_csapat_utjai.Count; q++)
+            {
+                int munkakod = -1;
+                bool sikeres = false;
+
+                System.Console.WriteLine("-----");
+                System.Console.WriteLine("Indulási emelet: " + System.Convert.ToString(vizsgalt_csapat_utjai[q].honnan));
+                System.Console.WriteLine("Célemelet: " + System.Convert.ToString(vizsgalt_csapat_utjai[q].hova));
+
+                bool feladatkod_jo = false;
+                while (!feladatkod_jo)
+                {
+                    try
+                    {
+
+                        System.Console.Write("Kérem az elvégzett feladat kódját! (1-99) ");
+                        munkakod = System.Convert.ToInt32(System.Console.ReadLine());
+
+                        if (munkakod < 1 || munkakod > 99)
+                        {
+                            throw new System.Exception("A munkakód csak 1 és 99 közötti egész szám lehet.");
+                        }
+
+                        feladatkod_jo = true;
+                    }
+                    catch (System.Exception hiba)
+                    {
+                        System.Console.WriteLine("Hiba történt a munkakód beolvasása során: " + hiba.Message);
+                        feladatkod_jo = false;
+                    }
+                }
+
+                System.Console.Write("Befejezés ideje: ");
+                System.Console.Write(System.Convert.ToString(vizsgalt_csapat_utjai[q].ora) + ":");
+                System.Console.Write(System.Convert.ToString(vizsgalt_csapat_utjai[q].perc) + ":");
+                System.Console.WriteLine(System.Convert.ToString(vizsgalt_csapat_utjai[q].masodperc));
+
+                bool sikeres_jo = false;
+                string sikeres_bemenet = null;
+                while (!sikeres_jo)
+                {
+                    try
+                    {
+
+                        System.Console.Write("Kérem a munka sikerességét! (I/N) ");
+                        sikeres_bemenet = System.Console.ReadLine();
+
+                        if (sikeres_bemenet != "I" && sikeres_bemenet != "i" && sikeres_bemenet != "N" && sikeres_bemenet != "n")
+                        {
+                            throw new System.Exception("Kérem, használja az I (igen) vagy N (nem) a sikeresség jelzéséhez.");
+                        }
+
+                        sikeres_jo = true;
+                    }
+                    catch (System.Exception hiba)
+                    {
+                        System.Console.WriteLine("Hiba történt a sikeresség beolvasása során: " + hiba.Message);
+                        sikeres_jo = false;
+                    }
+                }
+
+                if (sikeres_bemenet == "i" || sikeres_bemenet == "I")
+                {
+                    sikeres = true;
+                }
+                else if (sikeres_bemenet == "n" || sikeres_bemenet == "N")
+                {
+                    sikeres = false;
+                }
+
+                blokkol_writer.WriteLine("Indulási emelet: " + System.Convert.ToString(vizsgalt_csapat_utjai[q].honnan));
+                blokkol_writer.WriteLine("Célemelet: " + System.Convert.ToString(vizsgalt_csapat_utjai[q].hova));
+                blokkol_writer.WriteLine("Feladatkód: " + System.Convert.ToString(munkakod));
+                blokkol_writer.Write("Befejezés ideje: ");
+                blokkol_writer.Write(System.Convert.ToString(vizsgalt_csapat_utjai[q].ora) + ":");
+                blokkol_writer.Write(System.Convert.ToString(vizsgalt_csapat_utjai[q].perc) + ":");
+                blokkol_writer.WriteLine(System.Convert.ToString(vizsgalt_csapat_utjai[q].masodperc));
+                blokkol_writer.Write("Sikeresség: ");
+
+                if (sikeres == true)
+                {
+                    blokkol_writer.WriteLine("befejezett");
+                }
+                else if (sikeres == false)
+                {
+                    blokkol_writer.WriteLine("befejezetlen");
+                }
+
+                blokkol_writer.WriteLine("-----");
+                blokkol_writer.Flush();
+            }
+
+            blokkol_writer.Close();
+            blokkol_txt.Close();
+            System.Console.WriteLine();
 
             System.Console.WriteLine("A kilépéshez nyomjon ENTER-t...");
             System.Console.ReadLine();
