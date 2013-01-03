@@ -25,15 +25,46 @@ namespace Lift
             public short honnan;
             public short hova;
         }
-
+        
         static void Main(string[] args)
         {
-            /* ELSŐ RÉSZFELADAT
-             * ----------------
-             * Olvassa be az igeny.txt állományban talált adatokat, s azok
-             * felhasználásával oldja meg a következő feladatokat!
-             */
+            // ELSŐ RÉSZFELADAT
+            igeny[] igenyek;
+            short csapatok;
+            IgenyekOlvas(out igenyek, out csapatok);
 
+            // MÁSODIK RÉSZFELADAT
+            short lift_kezdopont;
+            LiftKezdopont(out lift_kezdopont);
+
+            // HARMADIK RÉSZFELADAT
+            UtolsoEmelet(ref igenyek);
+
+            // NEGYEDIK RÉSZFELADAT
+            SzintIntervallum(ref igenyek);
+            
+            // ÖTÖDIK RÉSZFELADAT
+            FelfeleIndulasok(ref igenyek);
+
+            // HATODIK RÉSZFELADAT
+            List<int> csapatok_lista;
+            NemUtazott(ref igenyek, csapatok, out csapatok_lista);
+            
+            // HETEDIK RÉSZFELADAT
+            List<igeny> vizsgalt_csapat_utjai;
+            int vizsgalt_csapat;
+            Szabalytalan(ref igenyek, csapatok, ref csapatok_lista, out vizsgalt_csapat_utjai, out vizsgalt_csapat);
+            
+            // NYOLCADIK RÉSZFELADAT
+            BlokkoloKartya(vizsgalt_csapat, ref vizsgalt_csapat_utjai);
+            
+            System.Console.WriteLine("A kilépéshez nyomjon ENTER-t...");
+            System.Console.ReadLine();
+            Environment.Exit(0);
+        }
+
+        static FileStream IgenyFajlMegnyit()
+        {
             // Beolvassuk a fájlt (hiba esetén megállunk és kilépünk) és
             // a létrehozott változókba eltároljuk az értékeket.
             FileStream igeny_txt = null;
@@ -54,6 +85,19 @@ namespace Lift
                 Environment.Exit(1);
             }
 
+            return igeny_txt;
+        }
+
+        static void IgenyekOlvas(out igeny[] igenyek, out short csapatok)
+        {
+            /* ELSŐ RÉSZFELADAT
+             * ----------------
+             * Olvassa be az igeny.txt állományban talált adatokat, s azok
+             * felhasználásával oldja meg a következő feladatokat!
+             */
+
+            FileStream igeny_txt = IgenyFajlMegnyit();
+
             // A StreamReader objektum olvasni fogja a létrejött fájlkapcsolatot.
             StreamReader txt = new StreamReader(igeny_txt);
 
@@ -62,11 +106,11 @@ namespace Lift
             // sorban a csapatok száma (legfeljebb 50), a harmadik sorban
             // pedig az igények száma (legfeljebb 100) olvasható.
             short emeletek = System.Convert.ToInt16(txt.ReadLine());
-            short csapatok = System.Convert.ToInt16(txt.ReadLine());
+            csapatok = System.Convert.ToInt16(txt.ReadLine());
             short igenyek_szam = System.Convert.ToInt16(txt.ReadLine());
 
             // Létrehozunk egy, igeny típusú adatsorokat tartalmazó tömböt.
-            igeny[] igenyek = new igeny[igenyek_szam];
+            igenyek = new igeny[igenyek_szam];
 
             // Majd egyesével végiglépkedve beolvasunk minden további sort a fájl végéig.
             // (Jelen pillanatban a StreamReader "mutatója" a negyedik sor elején áll.)
@@ -94,7 +138,10 @@ namespace Lift
             // Lezárjuk az olvasó kapcsolatot az igeny.txt fájlhoz.
             txt.Close();
             igeny_txt.Close();
+        }
 
+        static void LiftKezdopont(out short lift_kezdopont)
+        {
             /* MÁSODIK RÉSZFELADAT
              * -------------------
              * Tudjuk, hogy a megfigyelés kezdetén a lift éppen áll.
@@ -102,8 +149,11 @@ namespace Lift
              * a további részfeladatok megoldásánál ezt vegye figyelembe!
              */
             System.Console.Write("2. feladat: Melyik szinten áll a lift az induláskor? ");
-            short lift_kezdopont = System.Convert.ToInt16(System.Console.ReadLine());
+            lift_kezdopont = System.Convert.ToInt16(System.Console.ReadLine());
+        }
 
+        static void UtolsoEmelet(ref igeny[] igenyek)
+        {
             /* HARMADIK RÉSZFELADAT
              * --------------------
              * Határozza meg, hogy melyik szinten áll majd a lift az utolsó kérés teljesítését követően!
@@ -113,7 +163,10 @@ namespace Lift
             // majd mi kiolvassuk az igények tömb ezen elemének a "hova" változójából a választ.
             System.Console.Write("3. feladat: A lift az utolsó igény teljesítése után a(z) ");
             System.Console.WriteLine(igenyek[igenyek.GetUpperBound(0)].hova + ". emeleten áll meg.");
+        }
 
+        static void SzintIntervallum(ref igeny[] igenyek)
+        {
             /* NEGYEDIK RÉSZFELADAT
              * --------------------
              * Írja a képernyőre, hogy a megfigyelés kezdete és az
@@ -122,9 +175,9 @@ namespace Lift
              */
             // Létrehozunk egy üres tömböt, amely kétszer akkora, mint amennyi igény van.
             int[] emelet_lista = new int[(int)igenyek.Length * 2];
-            int j = 0;
+            int i = 0;
             int em_i = 0;
-            while (j < igenyek.Length)
+            while (i < igenyek.Length)
             {
                 // Amíg vannak igények, minden indulási és érkezési értéket átemelünk ebbe a tömbbe.
 
@@ -138,10 +191,10 @@ namespace Lift
                 // "honnan" érték a 2. helyre íródik, az em_i 1-gyel nő, és így
                 // a 3. helyre írja a "hova" értéket.
                 // (Vesd össze: em_i++ esetén a kettő lenne az index és csak a sor UTÁN nőne 1-gyel.)
-                emelet_lista[em_i] = igenyek[j].honnan;
-                emelet_lista[++em_i] = igenyek[j].hova;
+                emelet_lista[em_i] = igenyek[i].honnan;
+                emelet_lista[++em_i] = igenyek[i].hova;
 
-                j++;
+                i++;
                 em_i++;
             }
 
@@ -149,21 +202,25 @@ namespace Lift
             int maximum = emelet_lista[0];
             int minimum = emelet_lista[0];
 
-            for (int k = 0; k < emelet_lista.Length; k++)
+            for (int j = 0; j < emelet_lista.Length; j++)
             {
-                if (emelet_lista[k] > maximum)
+                if (emelet_lista[j] > maximum)
                 {
-                    maximum = emelet_lista[k];
+                    maximum = emelet_lista[j];
                 }
 
-                if (emelet_lista[k] < minimum)
+                if (emelet_lista[j] < minimum)
                 {
-                    minimum = emelet_lista[k];
+                    minimum = emelet_lista[j];
                 }
             }
+
             System.Console.Write("4. feladat: A lift a(z) " + System.Convert.ToString(minimum) + ". és a(z) ");
             System.Console.WriteLine(System.Convert.ToString(maximum) + ". szintek között mozgott.");
+        }
 
+        static void FelfeleIndulasok(ref igeny[] igenyek)
+        {
             /* ÖTÖDIK RÉSZFELADAT
              * ------------------
              * Határozza meg, hogy hányszor kellett a liftnek felfelé indulnia
@@ -192,28 +249,32 @@ namespace Lift
             System.Console.Write("5. feladat: A lift ennyiszer indult felfelé: utassal: ");
             System.Console.Write(System.Convert.ToString(felfele_utas) + ", utas nélkül: ");
             System.Console.WriteLine(System.Convert.ToString(felfele_utas_nelkul) + ".");
+        }
 
+        static void NemUtazott(ref igeny[] igenyek, short csapatok, out List<int> csapatok_lista)
+        {
             /* HATODIK RÉSZFELADAT
              * -------------------
              * Határozza meg, hogy mely szerelőcsapatok nem vették igénybe
              * a liftet a vizsgált intervallumban! A szerelőcsapatok sorszámát
              * egymástól egy-egy szóközzel elválasztva írja a képernyőre!
              */
+
             // Készítünk egy listát, amely csapatok darabszámú elemet tartalmazhat.
-            List<int> csapatok_lista = new List<int>(csapatok);
+            csapatok_lista = new List<int>(csapatok);
 
             // Ezt a listát feltöltjük az összes, forrásfájl szerint létező
             // csapat számával (1-től csapatszámig).
-            for (int m = 1; m <= csapatok; m++)
+            for (int i = 1; i <= csapatok; i++)
             {
-                csapatok_lista.Add(m);
+                csapatok_lista.Add(i);
             }
 
             // Iterálva (végiglépkedve) az igényeket tartalmazó tömböt,
             // kitöröljük azokat a csapatokat, amelyekhez találtunk igényt.
-            for (int n = 0; n < igenyek.Length; n++)
+            for (int j = 0; j < igenyek.Length; j++)
             {
-                csapatok_lista.Remove(igenyek[n].csapat);
+                csapatok_lista.Remove(igenyek[j].csapat);
             }
 
             // A listát rendezzük, majd a képernyőre írjuk a megoldást.
@@ -227,7 +288,10 @@ namespace Lift
                 System.Console.Write(System.Convert.ToString(nem_utazott_csapat_id) + ' ');
             }
             System.Console.WriteLine();
+        }
 
+        static void Szabalytalan(ref igeny[] igenyek, short csapatok, ref List<int> csapatok_lista, out List<igeny> vizsgalt_csapat_utjai, out int vizsgalt_csapat)
+        {
             /* HETEDIK RÉSZFELADAT
              * -------------------
              * Előfordul, hogy egyik vagy másik szerelőcsapat áthágja
@@ -242,7 +306,7 @@ namespace Lift
              */
             // Készítünk egy véletlengenerátor objektumot, ez fogja majd elkészíteni a számunkat.
             Random veletlen_generator = new Random();
-            int vizsgalt_csapat = 0;
+            vizsgalt_csapat = 0;
 
             // A hatodik feladatban elkészült egy lista, amely tartalmazza
             // azokat a csapatokat, amelyek NEM vették igénybe a liftet (csapatok_lista).
@@ -259,19 +323,19 @@ namespace Lift
                     csapat_letezik = true;
                 }
             }
-            
+
             System.Console.WriteLine("7. feladat: A következő csapatot vizsgáljuk: " + System.Convert.ToString(vizsgalt_csapat) + ".");
 
             // Készítünk egy tömböt, amelyet feltöltünk a kiválasztott csapat összes igényével.
-            List<igeny> vizsgalt_csapat_utjai = new List<igeny>(igenyek.Length);
-            for (int o = 0; o < igenyek.Length; o++)
+            vizsgalt_csapat_utjai = new List<igeny>(igenyek.Length);
+            for (int i = 0; i < igenyek.Length; i++)
             {
-                if (igenyek[o].csapat == vizsgalt_csapat)
+                if (igenyek[i].csapat == vizsgalt_csapat)
                 {
-                    vizsgalt_csapat_utjai.Add(igenyek[o]);
+                    vizsgalt_csapat_utjai.Add(igenyek[i]);
                 }
             }
-            
+
             // Megvizsgáljuk, hogy volt-e szabálytalanság:
             // egyesével végiglépkedünk a feltöltött listán.
             // A feladat szövege szerint akkor történt szabálytalanság, ha: 
@@ -282,14 +346,14 @@ namespace Lift
             int szabalytalan_honnan = -1;
             int szabalytalan_hova = -1;
 
-            for (int p = 1; p < vizsgalt_csapat_utjai.Count; p++)
+            for (int j = 1; j < vizsgalt_csapat_utjai.Count; j++)
             {
-                if (vizsgalt_csapat_utjai[p].honnan != vizsgalt_csapat_utjai[p-1].hova)
+                if (vizsgalt_csapat_utjai[j].honnan != vizsgalt_csapat_utjai[j - 1].hova)
                 {
                     volt_szabalytalansag = true;
 
-                    szabalytalan_honnan = vizsgalt_csapat_utjai[p-1].hova;
-                    szabalytalan_hova = vizsgalt_csapat_utjai[p].honnan;
+                    szabalytalan_honnan = vizsgalt_csapat_utjai[j - 1].hova;
+                    szabalytalan_hova = vizsgalt_csapat_utjai[j].honnan;
                 }
             }
 
@@ -304,7 +368,29 @@ namespace Lift
             {
                 System.Console.WriteLine("Nem történt szabálytalanság.");
             }
+        }
 
+        static FileStream BlokkolFajlMegnyit()
+        {
+            FileStream blokkol_txt = null;
+            try
+            {
+                blokkol_txt = new FileStream("blokkol.txt", FileMode.Create, FileAccess.Write);
+            }
+            catch (System.IO.IOException)
+            {
+                System.Console.WriteLine("Nem sikerült a blokkol.txt létrehozása.");
+                System.Console.WriteLine("Kérem ellenőrizze, hogy van írási joga a futtatható állományt tartalmazó mappához!");
+                System.Console.WriteLine("A kilépéshez nyomjon ENTER-t...");
+                System.Console.ReadLine();
+                Environment.Exit(1);
+            }
+
+            return blokkol_txt;
+        }
+        
+        static void BlokkoloKartya(int vizsgalt_csapat, ref List<igeny> vizsgalt_csapat_utjai)
+        {
             /* NYOLCADIK RÉSZFELADAT
              * ---------------------
              * A munkák elvégzésének adminisztrálásához minden csapatnak
@@ -324,19 +410,7 @@ namespace Lift
 
             // Létrehozzuk a blokkol.txt fájlt. Ha hiba történik, akkor kilépünk a programból.
             // Továbbá létrehozunk egy, a fájlba adatfolyamot író objektumot is.
-            FileStream blokkol_txt = null;
-            try
-            {
-                blokkol_txt = new FileStream("blokkol.txt", FileMode.Create, FileAccess.Write);
-            }
-            catch (System.IO.IOException)
-            {
-                System.Console.WriteLine("Nem sikerült a blokkol.txt létrehozása.");
-                System.Console.WriteLine("Kérem ellenőrizze, hogy van írási joga a futtatható állományt tartalmazó mappához!");
-                System.Console.WriteLine("A kilépéshez nyomjon ENTER-t...");
-                System.Console.ReadLine();
-                Environment.Exit(1);
-            }
+            FileStream blokkol_txt = BlokkolFajlMegnyit();
 
             StreamWriter blokkol_writer = new StreamWriter(blokkol_txt);
 
@@ -358,7 +432,6 @@ namespace Lift
                 {
                     try
                     {
-
                         System.Console.Write("Kérem az elvégzett feladat kódját! (1-99) ");
                         munkakod = System.Convert.ToInt32(System.Console.ReadLine());
 
@@ -388,7 +461,6 @@ namespace Lift
                 {
                     try
                     {
-
                         System.Console.Write("Kérem a munka sikerességét! (I/N) ");
                         sikeres_bemenet = System.Console.ReadLine();
 
@@ -442,10 +514,6 @@ namespace Lift
             blokkol_writer.Close();
             blokkol_txt.Close();
             System.Console.WriteLine();
-
-            System.Console.WriteLine("A kilépéshez nyomjon ENTER-t...");
-            System.Console.ReadLine();
-            Environment.Exit(0);
         }
     }
 }
